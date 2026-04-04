@@ -19,15 +19,7 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
     try {
       const freighterApi = await import('@stellar/freighter-api');
 
-      // Check if Freighter is installed using the official API method
-      const isInstalled = await freighterApi.isConnected();
-
-      if (!isInstalled) {
-        setError('Freighter wallet not found. Please install it from freighter.app');
-        setLoading(false);
-        return;
-      }
-
+      // Try to request access directly - Freighter will handle showing install prompt if needed
       const publicKey = await freighterApi.requestAccess();
 
       if (!publicKey) {
@@ -43,7 +35,16 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
       router.push('/dashboard');
     } catch (err: unknown) {
       const e = err as Error;
-      setError(e.message || 'Failed to connect wallet');
+      const errorMessage = e.message || 'Failed to connect wallet';
+      
+      // Handle specific Freighter errors
+      if (errorMessage.includes('User declined access') || errorMessage.includes('denied')) {
+        setError('Connection cancelled. Please approve the connection in Freighter.');
+      } else if (errorMessage.includes('Freighter is not installed') || errorMessage.includes('not available')) {
+        setError('Freighter wallet not found. Please install it from freighter.app');
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
