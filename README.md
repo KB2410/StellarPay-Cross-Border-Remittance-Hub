@@ -11,7 +11,39 @@
 
 **📋 Black Belt Submission**: Stellar Mastery Level 6 — Production Remittance Platform
 
-## Overview
+---
+
+## 🎯 Advanced Feature: Multi-Signature Logic
+
+**Status**: ✅ Complete and Production-Ready
+
+**Full Documentation**: [MULTISIG_GUIDE.md](./MULTISIG_GUIDE.md)
+
+### Proof of Implementation
+
+**Test Vault Created**: 
+- **Vault Account**: [GBOQSDWT74UQBXIKRQCMIFYGBZZAEW5PC5J7ZNB7HKJ7FFJQWZZYNG7R](https://stellar.expert/explorer/testnet/account/GBOQSDWT74UQBXIKRQCMIFYGBZZAEW5PC5J7ZNB7HKJ7FFJQWZZYNG7R)
+- **Setup Transaction**: [f492401733bf5c385711300dcc91c17b30ddfed185d5fd9ef4c27cdf03c9c106](https://stellar.expert/explorer/testnet/tx/f492401733bf5c385711300dcc91c17b30ddfed185d5fd9ef4c27cdf03c9c106)
+- **Configuration**: 2-of-2 signature scheme (thresholds: low=1, medium=2, high=2)
+- **Co-Signer**: GDA3LSUHL4353BJY34VNQCHU7IOS7YMTSYUOQ2TVGDUSAX66Z45QA4QK
+- **Verification**: View account signers and thresholds on Stellar Expert ✓
+
+**Implementation Features**:
+- ✅ 2-of-2 and M-of-N signature schemes
+- ✅ Pending transaction queue (Supabase)
+- ✅ Co-signer approval workflow  
+- ✅ XDR signature aggregation
+- ✅ Threshold-based authorization
+- ✅ Transaction inspection and validation
+- ✅ Automated testing script (`scripts/test-multisig-flow.js`)
+
+**Code References**:
+- Vault Setup: `lib/multisig.ts` - `setupVaultAccount()`
+- Transaction Signing: `lib/multisig.ts` - `signPendingTransaction()`
+- UI Components: `app/vault/page.tsx`, `app/approvals/page.tsx`
+- API: `app/api/multisig/route.ts`
+
+--- Overview
 
 StellarPay is a production-ready remittance web application built on the Stellar blockchain. Users connect their Freighter wallet to send/receive USDC and can upgrade their account into a **Multi-Signature Vault** for joint custody. An admin dashboard tracks live platform metrics.
 
