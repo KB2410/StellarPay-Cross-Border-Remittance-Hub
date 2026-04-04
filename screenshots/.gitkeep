@@ -1,0 +1,16 @@
+# Screenshots Directory
+
+Place your submission screenshots here:
+
+- `admin-dashboard.png` - Screenshot of /admin page showing metrics
+- `vault-setup.png` - (Optional) Screenshot of vault creation
+- `transaction-flow.png` - (Optional) Screenshot of payment flow
+- `approvals-page.png` - (Optional) Screenshot of pending approvals
+
+## How to Capture Screenshots
+
+1. Navigate to https://stellar-pay-cross-border-remittance-hub.vercel.app/admin
+2. Wait for metrics to load with real user data
+3. Take a full-page screenshot
+4. Save as `admin-dashboard.png` in this directory
+5. Update README.md to reference the screenshot
