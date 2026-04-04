@@ -7,7 +7,7 @@ QUICK STEPS:
 2. Create wallet & switch to TESTNET
 3. Get free test XLM: https://laboratory.stellar.org/#account-creator?network=test
 4. Test my app: https://stellar-pay-cross-border-remittance-hub.vercel.app/
-5. Fill feedback form: [https://docs.google.com/forms/d/e/1FAIpQLSfmj1ORehGLPrhhICFu9p3wIN-uEbCUuSSZ5H_f5aqkxVq17Q/viewform]
+5. Fill feedback form: https://docs.google.com/forms/d/e/1FAIpQLSfmj1ORehGLPrhhICFu9p3wIN-uEbCUuSSZ5H_f5aqkxVq17Q/viewform
 
 WHAT TO DO:
 ✅ Connect wallet
@@ -17,6 +17,6 @@ WHAT TO DO:
 
 NO REAL MONEY - Just testnet tokens!
 
-Full guide: [LINK_TO_USER_ONBOARDING_MESSAGE.md]
+Full guide: https://github.com/KB2410/StellarPay-Cross-Border-Remittance-Hub/blob/main/USER_ONBOARDING_MESSAGE.md
 
 Thanks! 🙏

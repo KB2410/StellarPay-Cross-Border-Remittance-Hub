@@ -51,7 +51,7 @@ StellarPay is a production-ready remittance web application built on the Stellar
 
 **30+ Active Users Onboarded** — Real users testing the platform and providing feedback.
 
-- **Feedback Form**: [https://forms.gle/VnSreQn1juMr3ATQ9](https://forms.gle/VnSreQn1juMr3ATQ9)
+- **Feedback Form**: https://docs.google.com/forms/d/e/1FAIpQLSfmj1ORehGLPrhhICFu9p3wIN-uEbCUuSSZ5H_f5aqkxVq17Q/viewform
 - **User Testimonials**: See [USER_FEEDBACK.md](./USER_FEEDBACK.md) for detailed responses
 
 ### 🎯 Platform Metrics (Live)
