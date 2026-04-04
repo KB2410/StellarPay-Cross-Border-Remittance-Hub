@@ -81,3 +81,56 @@ body {
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  /* Improve touch targets */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better spacing on mobile */
+  .glass-card {
+    padding: 1rem;
+  }
+
+  /* Scrollable tables */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Larger text for readability */
+  body {
+    font-size: 16px;
+  }
+
+  /* Prevent zoom on input focus */
+  input, select, textarea {
+    font-size: 16px;
+  }
+
+  /* Better modal sizing */
+  .modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+/* Tablet improvements */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .glass-card {
+    padding: 1.5rem;
+  }
+}
+
+/* Utility classes */
+.scrollable-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scrollable-x::-webkit-scrollbar {
+  height: 4px;
+}
