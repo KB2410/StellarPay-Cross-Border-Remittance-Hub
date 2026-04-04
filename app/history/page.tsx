@@ -11,6 +11,8 @@ export default function HistoryPage() {
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<HorizonOperation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [selectedTx, setSelectedTx] = useState<HorizonOperation | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -20,14 +22,21 @@ export default function HistoryPage() {
       return;
     }
     setPublicKey(key);
-
-    async function fetchHistory() {
-      const txs = await getTransactionHistory(key!);
-      setTransactions(txs);
-      setLoading(false);
-    }
-    fetchHistory();
+    fetchHistory(key);
   }, [router]);
+
+  async function fetchHistory(key: string) {
+    const txs = await getTransactionHistory(key);
+    setTransactions(txs);
+    setLoading(false);
+  }
+
+  async function handleRefresh() {
+    if (!publicKey) return;
+    setRefreshing(true);
+    await fetchHistory(publicKey);
+    setRefreshing(false);
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -50,10 +59,19 @@ export default function HistoryPage() {
           </p>
         </div>
         <button
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm text-gray-300 transition-all"
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm text-gray-300 transition-all disabled:opacity-50 flex items-center gap-2"
         >
-          Refresh
+          <svg 
+            className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          {refreshing ? 'Refreshing...' : 'Refresh'}
         </button>
       </div>
 
@@ -66,11 +84,12 @@ export default function HistoryPage() {
       ) : transactions.length > 0 ? (
         <div className="space-y-3">
           {transactions.map((tx) => (
-            <TransactionCard
-              key={tx.id}
-              operation={tx}
-              userPublicKey={publicKey!}
-            />
+            <div key={tx.id} onClick={() => setSelectedTx(tx)} className="cursor-pointer">
+              <TransactionCard
+                operation={tx}
+                userPublicKey={publicKey!}
+              />
+            </div>
           ))}
         </div>
       ) : (
@@ -82,6 +101,82 @@ export default function HistoryPage() {
           <p className="text-gray-600 text-sm mt-1">
             Send or receive funds to see your history here
           </p>
+        </div>
+      )}
+
+      {/* Transaction Details Modal */}
+      {selectedTx && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          onClick={() => setSelectedTx(null)}
+        >
+          <div 
+            className="glass-card rounded-2xl p-6 max-w-lg w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-white">Transaction Details</h3>
+              <button
+                onClick={() => setSelectedTx(null)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs text-gray-500 mb-1">Type</p>
+                <p className="text-white font-medium capitalize">{selectedTx.type}</p>
+              </div>
+
+              {selectedTx.amount && (
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Amount</p>
+                  <p className="text-white font-medium">
+                    {selectedTx.amount} {selectedTx.asset_code || 'XLM'}
+                  </p>
+                </div>
+              )}
+
+              {selectedTx.from && (
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">From</p>
+                  <p className="text-white font-mono text-xs break-all">{selectedTx.from}</p>
+                </div>
+              )}
+
+              {selectedTx.to && (
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">To</p>
+                  <p className="text-white font-mono text-xs break-all">{selectedTx.to}</p>
+                </div>
+              )}
+
+              <div>
+                <p className="text-xs text-gray-500 mb-1">Transaction ID</p>
+                <p className="text-white font-mono text-xs break-all">{selectedTx.transaction_hash}</p>
+              </div>
+
+              <div>
+                <p className="text-xs text-gray-500 mb-1">Date</p>
+                <p className="text-white text-sm">
+                  {new Date(selectedTx.created_at).toLocaleString()}
+                </p>
+              </div>
+
+              <a
+                href={`https://stellar.expert/explorer/testnet/tx/${selectedTx.transaction_hash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-xl font-semibold text-center transition-all"
+              >
+                View on Stellar Expert →
+              </a>
+            </div>
+          </div>
         </div>
       )}
     </div>
