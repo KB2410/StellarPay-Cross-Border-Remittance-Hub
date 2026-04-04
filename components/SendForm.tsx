@@ -8,6 +8,12 @@ import {
   submitTransaction,
   isMultisigAccount,
 } from '@/lib/stellar';
+import {
+  validatePublicKey,
+  validateAmount,
+  validateMemo,
+  sanitizeInput,
+} from '@/lib/validation';
 
 interface SendFormProps {
   publicKey: string;
@@ -24,37 +30,49 @@ export default function SendForm({ publicKey }: SendFormProps) {
   } | null>(null);
   const router = useRouter();
 
-  function validateAmount(val: string): boolean {
-    const num = parseFloat(val);
-    if (isNaN(num) || num <= 0) return false;
-    const parts = val.split('.');
-    if (parts[1] && parts[1].length > 6) return false;
-    return true;
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus(null);
     setLoading(true);
 
     try {
-      // Validate inputs
-      if (!isValidAddress(recipient)) {
+      // Sanitize inputs
+      const sanitizedRecipient = sanitizeInput(recipient);
+      const sanitizedAmount = sanitizeInput(amount);
+      const sanitizedMemo = sanitizeInput(memo);
+
+      // Validate recipient
+      const recipientValidation = validatePublicKey(sanitizedRecipient);
+      if (!recipientValidation.valid) {
+        throw new Error(recipientValidation.error);
+      }
+
+      // Validate amount
+      const amountValidation = validateAmount(sanitizedAmount);
+      if (!amountValidation.valid) {
+        throw new Error(amountValidation.error);
+      }
+
+      // Validate memo
+      const memoValidation = validateMemo(sanitizedMemo);
+      if (!memoValidation.valid) {
+        throw new Error(memoValidation.error);
+      }
+
+      // Additional checks
+      if (!isValidAddress(sanitizedRecipient)) {
         throw new Error('Invalid Stellar address');
       }
-      if (!validateAmount(amount)) {
-        throw new Error('Invalid amount. Must be positive with max 6 decimals.');
-      }
-      if (recipient === publicKey) {
+      if (sanitizedRecipient === publicKey) {
         throw new Error('Cannot send to yourself');
       }
 
       // Build the payment XDR
       const xdr = await buildPaymentTransaction(
         publicKey,
-        recipient,
-        amount,
-        memo || undefined
+        sanitizedRecipient,
+        sanitizedAmount,
+        sanitizedMemo || undefined
       );
 
       // Check if account is a multisig vault
@@ -109,10 +127,10 @@ export default function SendForm({ publicKey }: SendFormProps) {
                 user_public_key: publicKey,
                 stellar_tx_hash: result.hash,
                 direction: 'sent',
-                amount: parseFloat(amount),
+                amount: parseFloat(sanitizedAmount),
                 asset: 'USDC',
-                counterparty: recipient,
-                memo: memo || null,
+                counterparty: sanitizedRecipient,
+                memo: sanitizedMemo || null,
               },
             ]);
           } catch {
