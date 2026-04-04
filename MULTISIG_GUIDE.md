@@ -257,9 +257,9 @@ Multi-signature wallets are essential for:
 
 ## Support & Documentation
 
-- **Technical Docs**: `TECHNICAL_DOCS.md`
-- **User Guide**: `USER_GUIDE.md`
+- **Main README**: `README.md`
 - **Security**: `SECURITY.md`
+- **User Feedback**: `USER_FEEDBACK.md`
 - **API Reference**: `/api/multisig` endpoint documentation
 
 ---
