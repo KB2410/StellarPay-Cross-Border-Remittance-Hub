@@ -112,9 +112,11 @@ class PerformanceMonitor {
     new PerformanceObserver((list) => {
       const entries = list.getEntries();
       entries.forEach((entry: PerformanceEntry) => {
-        const fidEntry = entry as PerformanceEventTiming;
-        const fid = fidEntry.processingStart - fidEntry.startTime;
-        console.log('FID:', fid);
+        const fidEntry = entry as any;
+        if (fidEntry.processingStart) {
+          const fid = fidEntry.processingStart - fidEntry.startTime;
+          console.log('FID:', fid);
+        }
       });
     }).observe({ entryTypes: ['first-input'] });
 
@@ -123,8 +125,8 @@ class PerformanceMonitor {
     new PerformanceObserver((list) => {
       const entries = list.getEntries();
       entries.forEach((entry: PerformanceEntry) => {
-        const layoutShiftEntry = entry as LayoutShift;
-        if (!layoutShiftEntry.hadRecentInput) {
+        const layoutShiftEntry = entry as any;
+        if (!layoutShiftEntry.hadRecentInput && layoutShiftEntry.value) {
           clsScore += layoutShiftEntry.value;
         }
       });
@@ -225,14 +227,5 @@ declare global {
         data?: Record<string, unknown>;
       }) => void;
     };
-  }
-
-  interface PerformanceEventTiming extends PerformanceEntry {
-    processingStart: number;
-  }
-
-  interface LayoutShift extends PerformanceEntry {
-    value: number;
-    hadRecentInput: boolean;
   }
 }
