@@ -56,6 +56,35 @@ export async function buildPaymentTransaction(
 
   const usdcAsset = new StellarSdk.Asset('USDC', USDC_ISSUER);
 
+  // Check if destination account exists and has USDC trustline
+  try {
+    const destAccount = await server.loadAccount(recipientPublicKey);
+    const hasUSDCTrustline = destAccount.balances.some(
+      (b) =>
+        b.asset_type !== 'native' &&
+        (b as StellarSdk.Horizon.HorizonApi.BalanceLineAsset).asset_code === 'USDC' &&
+        (b as StellarSdk.Horizon.HorizonApi.BalanceLineAsset).asset_issuer === USDC_ISSUER
+    );
+
+    if (!hasUSDCTrustline) {
+      throw new Error(
+        'Recipient account exists but does not have a USDC trustline. They need to add USDC trust first.'
+      );
+    }
+  } catch (err: unknown) {
+    const error = err as { response?: { status?: number }; message?: string };
+    if (error.response?.status === 404) {
+      throw new Error(
+        'Recipient account does not exist. They need to create their account first (get funded from Friendbot or receive XLM).'
+      );
+    }
+    // Re-throw if it's our custom trustline error
+    if (error.message?.includes('trustline')) {
+      throw error;
+    }
+    throw new Error('Failed to verify recipient account');
+  }
+
   const builder = new StellarSdk.TransactionBuilder(sourceAccount, {
     fee: StellarSdk.BASE_FEE,
     networkPassphrase: network,
