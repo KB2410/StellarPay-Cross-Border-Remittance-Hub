@@ -85,18 +85,13 @@ export default function SendForm({ publicKey }: SendFormProps) {
           throw new Error(data.error || 'Failed to create pending transaction');
         }
       } else {
-        // Standard account — sign with Freighter or submit directly
-        const isFreighter =
-          localStorage.getItem('stellarpay_is_freighter') === 'true';
-
-        let signedXdr = xdr;
-
-        if (isFreighter) {
-          const freighterApi = await import('@stellar/freighter-api');
-          signedXdr = await freighterApi.signTransaction(xdr, {
-            networkPassphrase: 'Test SDF Network ; September 2015',
-          });
-        }
+        // Standard account — sign with Freighter
+        const freighterApi = await import('@stellar/freighter-api');
+        const { network } = await import('@/lib/stellar');
+        
+        const signedXdr = await freighterApi.signTransaction(xdr, {
+          networkPassphrase: network,
+        });
 
         const result = await submitTransaction(signedXdr);
 
