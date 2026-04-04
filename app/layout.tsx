@@ -36,6 +36,7 @@ function Navbar() {
           <div className="hidden md:flex items-center gap-1">
             {[
               { href: '/dashboard', label: 'Dashboard' },
+              { href: '/setup', label: 'Setup' },
               { href: '/send', label: 'Send' },
               { href: '/receive', label: 'Receive' },
               { href: '/vault', label: 'Vault' },
