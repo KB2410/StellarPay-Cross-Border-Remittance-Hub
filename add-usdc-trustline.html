@@ -140,13 +140,7 @@
         const StellarSdk = await import('https://cdn.jsdelivr.net/npm/@stellar/stellar-sdk@12.0.0/+esm');
         const freighterApi = await import('https://cdn.jsdelivr.net/npm/@stellar/freighter-api@2.0.0/+esm');
 
-        // Check if Freighter is installed
-        const isConnected = await freighterApi.isConnected();
-        if (!isConnected) {
-          throw new Error('Freighter wallet not found. Please install it from freighter.app');
-        }
-
-        // Get public key from Freighter
+        // Get public key from Freighter (this will prompt if not connected)
         const publicKey = await freighterApi.requestAccess();
         if (!publicKey) {
           throw new Error('Please approve access in Freighter');
