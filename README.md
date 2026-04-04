@@ -101,8 +101,8 @@ types/index.ts            → Shared TypeScript types
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/kartikbotre/stellarpay-remittance-hub.git
-cd stellarpay-remittance-hub
+git clone https://github.com/KB2410/StellarPay-Cross-Border-Remittance-Hub.git
+cd StellarPay-Cross-Border-Remittance-Hub
 npm install
 ```
 
