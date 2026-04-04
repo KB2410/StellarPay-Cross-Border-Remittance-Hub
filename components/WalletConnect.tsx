@@ -19,10 +19,8 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
     try {
       const freighterApi = await import('@stellar/freighter-api');
 
-      // Check if Freighter is installed
-      const isInstalled =
-        typeof window !== 'undefined' &&
-        (window as unknown as { freighter?: unknown }).freighter;
+      // Check if Freighter is installed using the official API method
+      const isInstalled = await freighterApi.isConnected();
 
       if (!isInstalled) {
         setError('Freighter wallet not found. Please install it from freighter.app');
