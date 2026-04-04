@@ -17,6 +17,8 @@
 
 **Status**: ✅ Complete and Production-Ready
 
+**Quick Start Guide**: [MULTISIG_QUICKSTART.md](./MULTISIG_QUICKSTART.md) ← **Start here!**
+
 **Full Documentation**: [MULTISIG_GUIDE.md](./MULTISIG_GUIDE.md)
 
 ### Proof of Implementation
