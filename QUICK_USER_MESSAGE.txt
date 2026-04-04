@@ -1,0 +1,22 @@
+🚀 Hey! Need your help testing my blockchain app (10 mins)
+
+I'm building StellarPay for my Stellar certification and need 30+ testers!
+
+QUICK STEPS:
+1. Install Freighter Wallet: https://www.freighter.app/
+2. Create wallet & switch to TESTNET
+3. Get free test XLM: https://laboratory.stellar.org/#account-creator?network=test
+4. Test my app: https://stellar-pay-cross-border-remittance-hub.vercel.app/
+5. Fill feedback form: [https://docs.google.com/forms/d/e/1FAIpQLSfmj1ORehGLPrhhICFu9p3wIN-uEbCUuSSZ5H_f5aqkxVq17Q/viewform]
+
+WHAT TO DO:
+✅ Connect wallet
+✅ Add USDC trustline (Setup page)
+✅ Try sending test payment to: GAW5QO2JPBTMQF2CWU3BBBI74ERAGLT3C5YVIKGNXPNVHYLFFDWTDSRN
+✅ Fill the form with your wallet address
+
+NO REAL MONEY - Just testnet tokens!
+
+Full guide: [LINK_TO_USER_ONBOARDING_MESSAGE.md]
+
+Thanks! 🙏
