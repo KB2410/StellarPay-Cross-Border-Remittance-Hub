@@ -38,6 +38,43 @@ export default function HistoryPage() {
     setRefreshing(false);
   }
 
+  function exportToCSV() {
+    if (transactions.length === 0) return;
+
+    // CSV headers
+    const headers = ['Date', 'Type', 'Amount', 'Asset', 'From', 'To', 'Transaction Hash'];
+    
+    // CSV rows
+    const rows = transactions.map(tx => [
+      new Date(tx.created_at).toISOString(),
+      tx.type,
+      tx.amount || '',
+      tx.asset_code || 'XLM',
+      tx.from || '',
+      tx.to || '',
+      tx.transaction_hash
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `stellarpay-transactions-${Date.now()}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       {/* Breadcrumb */}
@@ -58,21 +95,34 @@ export default function HistoryPage() {
             All operations from the Stellar network
           </p>
         </div>
-        <button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm text-gray-300 transition-all disabled:opacity-50 flex items-center gap-2"
-        >
-          <svg 
-            className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
+        <div className="flex gap-2">
+          {transactions.length > 0 && (
+            <button
+              onClick={exportToCSV}
+              className="px-4 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/30 rounded-xl text-sm text-emerald-400 transition-all flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Export CSV
+            </button>
+          )}
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm text-gray-300 transition-all disabled:opacity-50 flex items-center gap-2"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          {refreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
+            <svg 
+              className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
       </div>
 
       {loading ? (
