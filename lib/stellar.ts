@@ -114,6 +114,19 @@ export async function buildNativePaymentTransaction(
 ): Promise<string> {
   const sourceAccount = await server.loadAccount(senderPublicKey);
 
+  // Check if destination account exists
+  try {
+    await server.loadAccount(recipientPublicKey);
+  } catch (err: unknown) {
+    const error = err as { response?: { status?: number } };
+    if (error.response?.status === 404) {
+      throw new Error(
+        'Recipient account does not exist. They need to create their account first (get funded from Friendbot or receive XLM).'
+      );
+    }
+    throw new Error('Failed to verify recipient account');
+  }
+
   const builder = new StellarSdk.TransactionBuilder(sourceAccount, {
     fee: StellarSdk.BASE_FEE,
     networkPassphrase: network,

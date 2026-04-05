@@ -174,3 +174,30 @@ export function validateDisplayName(name: string): ValidationResult {
 
   return { valid: true };
 }
+
+/**
+ * Validate payment amount for specific asset type
+ */
+export function validateAmountForAsset(
+  amount: string,
+  asset: 'XLM' | 'USDC'
+): ValidationResult {
+  // First run standard amount validation
+  const baseValidation = validateAmount(amount);
+  if (!baseValidation.valid) {
+    return baseValidation;
+  }
+
+  const num = parseFloat(amount);
+
+  // Asset-specific minimum amounts
+  if (asset === 'XLM' && num < 0.0000001) {
+    return { valid: false, error: 'XLM amount must be at least 0.0000001' };
+  }
+
+  if (asset === 'USDC' && num < 0.000001) {
+    return { valid: false, error: 'USDC amount must be at least 0.000001' };
+  }
+
+  return { valid: true };
+}

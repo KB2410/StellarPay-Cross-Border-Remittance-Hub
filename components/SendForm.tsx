@@ -5,12 +5,13 @@ import { useRouter } from 'next/navigation';
 import {
   isValidAddress,
   buildPaymentTransaction,
+  buildNativePaymentTransaction,
   submitTransaction,
   isMultisigAccount,
 } from '@/lib/stellar';
 import {
   validatePublicKey,
-  validateAmount,
+  validateAmountForAsset,
   validateMemo,
   sanitizeInput,
 } from '@/lib/validation';
@@ -20,6 +21,7 @@ interface SendFormProps {
 }
 
 export default function SendForm({ publicKey }: SendFormProps) {
+  const [selectedAsset, setSelectedAsset] = useState<'XLM' | 'USDC'>('XLM');
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [memo, setMemo] = useState('');
@@ -48,7 +50,7 @@ export default function SendForm({ publicKey }: SendFormProps) {
       }
 
       // Validate amount
-      const amountValidation = validateAmount(sanitizedAmount);
+      const amountValidation = validateAmountForAsset(sanitizedAmount, selectedAsset);
       if (!amountValidation.valid) {
         throw new Error(amountValidation.error);
       }
@@ -68,12 +70,19 @@ export default function SendForm({ publicKey }: SendFormProps) {
       }
 
       // Build the payment XDR
-      const xdr = await buildPaymentTransaction(
-        publicKey,
-        sanitizedRecipient,
-        sanitizedAmount,
-        sanitizedMemo || undefined
-      );
+      const xdr = selectedAsset === 'XLM'
+        ? await buildNativePaymentTransaction(
+            publicKey,
+            sanitizedRecipient,
+            sanitizedAmount,
+            sanitizedMemo || undefined
+          )
+        : await buildPaymentTransaction(
+            publicKey,
+            sanitizedRecipient,
+            sanitizedAmount,
+            sanitizedMemo || undefined
+          );
 
       // Check if account is a multisig vault
       const isVault = await isMultisigAccount(publicKey);
@@ -128,7 +137,7 @@ export default function SendForm({ publicKey }: SendFormProps) {
                 stellar_tx_hash: result.hash,
                 direction: 'sent',
                 amount: parseFloat(sanitizedAmount),
-                asset: 'USDC',
+                asset: selectedAsset,
                 counterparty: sanitizedRecipient,
                 memo: sanitizedMemo || null,
               },
@@ -151,6 +160,21 @@ export default function SendForm({ publicKey }: SendFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-lg mx-auto">
+      {/* Asset Selector */}
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Asset
+        </label>
+        <select
+          value={selectedAsset}
+          onChange={(e) => setSelectedAsset(e.target.value as 'XLM' | 'USDC')}
+          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all"
+        >
+          <option value="XLM">XLM (Stellar Lumens)</option>
+          <option value="USDC">USDC (USD Coin)</option>
+        </select>
+      </div>
+
       {/* Recipient */}
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -169,7 +193,7 @@ export default function SendForm({ publicKey }: SendFormProps) {
       {/* Amount */}
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">
-          Amount (USDC)
+          Amount ({selectedAsset})
         </label>
         <input
           type="number"
@@ -230,7 +254,7 @@ export default function SendForm({ publicKey }: SendFormProps) {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>
-            Send USDC
+            Send {selectedAsset}
           </>
         )}
       </button>

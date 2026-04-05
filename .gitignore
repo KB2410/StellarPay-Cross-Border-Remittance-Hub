@@ -42,3 +42,18 @@ next-env.d.ts
 FREIGHTER_ONLY_VERIFICATION.md
 RESTART_INSTRUCTIONS.md
 SETUP_AND_RUN.md
+
+# Temporary user messages and drafts (not needed in repo)
+QUICK_USER_MESSAGE.txt
+SHARE_THIS_MESSAGE.txt
+USER_ONBOARDING_MESSAGE.md
+TWITTER_POST_DRAFT.md
+USER_FEEDBACK.md
+BLACK_BELT_SUMMARY.md
+GOOGLE_FORM_TEMPLATE.md
+
+# Kiro spec files (development artifacts, not needed in production repo)
+.kiro/
+
+# Screenshots (can be added selectively if needed for documentation)
+screenshots/
