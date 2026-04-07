@@ -3,7 +3,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 import type { Metrics } from '@/types';
+import { isAdmin, setAdminKey, clearAdminKey } from '@/lib/admin';
 
 const MetricsChart = dynamic(() => import('@/components/MetricsChart'), {
   ssr: false,
@@ -13,6 +15,10 @@ const MetricsChart = dynamic(() => import('@/components/MetricsChart'), {
 });
 
 export default function AdminPage() {
+  const router = useRouter();
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [adminKey, setAdminKeyInput] = useState('');
+  const [authError, setAuthError] = useState('');
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [health, setHealth] = useState<{
     status: string;
@@ -22,6 +28,7 @@ export default function AdminPage() {
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
   const fetchData = useCallback(async () => {
+    if (!isAuthorized) return;
     try {
       const [metricsRes, healthRes] = await Promise.all([
         fetch('/api/metrics'),
@@ -37,13 +44,42 @@ export default function AdminPage() {
     } finally {
       setLoading(false);
     }
+  }, [isAuthorized]);
+
+  useEffect(() => {
+    // Check if user is already authorized
+    if (isAdmin()) {
+      setIsAuthorized(true);
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 30000); // Auto-refresh every 30s
-    return () => clearInterval(interval);
-  }, [fetchData]);
+    if (isAuthorized) {
+      fetchData();
+      const interval = setInterval(fetchData, 30000); // Auto-refresh every 30s
+      return () => clearInterval(interval);
+    }
+  }, [fetchData, isAuthorized]);
+
+  const handleAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (setAdminKey(adminKey)) {
+      setIsAuthorized(true);
+      setAuthError('');
+      fetchData();
+    } else {
+      setAuthError('Invalid admin key');
+    }
+  };
+
+  const handleLogout = () => {
+    clearAdminKey();
+    setIsAuthorized(false);
+    setAdminKeyInput('');
+    router.push('/dashboard');
+  };
 
   const statCards = metrics
     ? [
@@ -94,6 +130,52 @@ export default function AdminPage() {
       ]
     : [];
 
+  if (!isAuthorized) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-16">
+        <div className="glass-card rounded-2xl p-8 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-violet-500/10 text-violet-400 flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <h1 className="text-xl font-bold text-white mb-2">Admin Access Required</h1>
+          <p className="text-gray-500 text-sm mb-6">
+            Enter your admin secret key to access the dashboard.
+          </p>
+          <form onSubmit={handleAuth} className="space-y-4">
+            <div>
+              <input
+                type="password"
+                value={adminKey}
+                onChange={(e) => setAdminKeyInput(e.target.value)}
+                placeholder="Enter admin secret key"
+                className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.06] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all"
+              />
+            </div>
+            {authError && (
+              <p className="text-red-400 text-sm">{authError}</p>
+            )}
+            <button
+              type="submit"
+              className="w-full py-3 px-4 bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-medium rounded-xl hover:from-violet-600 hover:to-indigo-700 transition-all duration-200 shadow-lg shadow-violet-500/20"
+            >
+              Access Dashboard
+            </button>
+          </form>
+          <div className="mt-6 pt-6 border-t border-white/[0.06]">
+            <Link
+              href="/dashboard"
+              className="text-sm text-gray-500 hover:text-gray-400 transition-colors"
+            >
+              ← Back to Dashboard
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       {/* Header */}
@@ -124,6 +206,12 @@ export default function AdminPage() {
               {health?.status === 'healthy' ? 'All Systems Go' : 'Degraded'}
             </span>
           </div>
+          <button
+            onClick={handleLogout}
+            className="ml-4 px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/[0.06] rounded-lg transition-all"
+          >
+            Logout
+          </button>
         </div>
       </div>
 

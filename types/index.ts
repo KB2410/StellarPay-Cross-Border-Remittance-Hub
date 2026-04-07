@@ -5,6 +5,7 @@ export interface User {
   email: string | null;
   created_at: string;
   last_active_at: string;
+  is_admin?: boolean;
 }
 
 export interface Transaction {

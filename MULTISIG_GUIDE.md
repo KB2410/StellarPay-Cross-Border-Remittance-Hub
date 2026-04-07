@@ -210,7 +210,7 @@ Run the Supabase schema:
 
 ### Live Demo
 
-- **URL**: https://stellar-pay-cross-border-remittance-hub.vercel.app
+- **URL**: https://stellar-pay-cross-border-remittance.vercel.app
 - **Vault Page**: `/vault`
 - **Approvals Page**: `/approvals`
 

@@ -7,7 +7,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-**🌐 Live Demo**: [https://stellar-pay-cross-border-remittance-hub.vercel.app/](https://stellar-pay-cross-border-remittance-hub.vercel.app/)
+**🌐 Live Demo**: [https://stellar-pay-cross-border-remittance.vercel.app/](https://stellar-pay-cross-border-remittance.vercel.app/)
 
 **📋 Black Belt Submission**: Stellar Mastery Level 6 — Production Remittance Platform
 
@@ -401,7 +401,7 @@ MIT License. See [LICENSE](./LICENSE) for details.
 This project fulfills the **Stellar Mastery Level 6** requirements:
 
 ### ✅ Core Requirements
-- [x] **Production Deployment**: Live on Vercel at [stellar-pay-cross-border-remittance-hub.vercel.app](https://stellar-pay-cross-border-remittance-hub.vercel.app/)
+- [x] **Production Deployment**: Live on Vercel at [stellar-pay-cross-border-remittance.vercel.app](https://stellar-pay-cross-border-remittance.vercel.app/)
 - [x] **Multi-Signature Implementation**: Native Stellar 2-of-2 multisig with XDR signing flow
 - [x] **Database Integration**: Supabase with RLS for metrics and pending transactions
 - [x] **Monitoring**: Sentry integration for error tracking and performance monitoring

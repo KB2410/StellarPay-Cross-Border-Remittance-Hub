@@ -1,10 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { isAdmin } from '@/lib/admin';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAdminUser, setIsAdminUser] = useState(false);
+
+  useEffect(() => {
+    setIsAdminUser(isAdmin());
+  }, []);
+
+  const navLinks = [
+    { href: '/dashboard', label: 'Dashboard' },
+    { href: '/setup', label: 'Setup' },
+    { href: '/send', label: 'Send' },
+    { href: '/receive', label: 'Receive' },
+    { href: '/vault', label: 'Vault' },
+    { href: '/approvals', label: 'Approvals' },
+    { href: '/history', label: 'History' },
+    ...(isAdminUser ? [{ href: '/admin', label: 'Admin' }] : []),
+  ];
 
   return (
     <nav className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#0a0b14]/80 backdrop-blur-xl">
@@ -24,16 +41,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center gap-1">
-            {[
-              { href: '/dashboard', label: 'Dashboard' },
-              { href: '/setup', label: 'Setup' },
-              { href: '/send', label: 'Send' },
-              { href: '/receive', label: 'Receive' },
-              { href: '/vault', label: 'Vault' },
-              { href: '/approvals', label: 'Approvals' },
-              { href: '/history', label: 'History' },
-              { href: '/admin', label: 'Admin' },
-            ].map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -66,16 +74,7 @@ export default function Navbar() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-white/[0.06]">
             <div className="flex flex-col gap-2">
-              {[
-                { href: '/dashboard', label: 'Dashboard' },
-                { href: '/setup', label: 'Setup' },
-                { href: '/send', label: 'Send' },
-                { href: '/receive', label: 'Receive' },
-                { href: '/vault', label: 'Vault' },
-                { href: '/approvals', label: 'Approvals' },
-                { href: '/history', label: 'History' },
-                { href: '/admin', label: 'Admin' },
-              ].map((link) => (
+              {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
