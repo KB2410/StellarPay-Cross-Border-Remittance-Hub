@@ -7,9 +7,15 @@ import { isAdmin } from '@/lib/admin';
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsAdminUser(isAdmin());
+    async function checkAdmin() {
+      const admin = await isAdmin();
+      setIsAdminUser(admin);
+      setIsLoading(false);
+    }
+    checkAdmin();
   }, []);
 
   const navLinks = [

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import type { Metrics } from '@/types';
-import { isAdmin, setAdminKey, clearAdminKey } from '@/lib/admin';
+import { isAdmin, authenticateAdmin, logoutAdmin } from '@/lib/admin';
 
 const MetricsChart = dynamic(() => import('@/components/MetricsChart'), {
   ssr: false,
@@ -48,11 +48,12 @@ export default function AdminPage() {
 
   useEffect(() => {
     // Check if user is already authorized
-    if (isAdmin()) {
-      setIsAuthorized(true);
-    } else {
+    async function checkAuth() {
+      const admin = await isAdmin();
+      setIsAuthorized(admin);
       setLoading(false);
     }
+    checkAuth();
   }, []);
 
   useEffect(() => {
@@ -63,19 +64,20 @@ export default function AdminPage() {
     }
   }, [fetchData, isAuthorized]);
 
-  const handleAuth = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (setAdminKey(adminKey)) {
+    setAuthError('');
+    const result = await authenticateAdmin(adminKey);
+    if (result.success) {
       setIsAuthorized(true);
-      setAuthError('');
       fetchData();
     } else {
-      setAuthError('Invalid admin key');
+      setAuthError(result.error || 'Invalid admin key');
     }
   };
 
-  const handleLogout = () => {
-    clearAdminKey();
+  const handleLogout = async () => {
+    await logoutAdmin();
     setIsAuthorized(false);
     setAdminKeyInput('');
     router.push('/dashboard');
