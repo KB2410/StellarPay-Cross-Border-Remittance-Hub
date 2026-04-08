@@ -17,8 +17,9 @@ const MetricsChart = dynamic(() => import('@/components/MetricsChart'), {
 export default function AdminPage() {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [adminKey, setAdminKeyInput] = useState('');
+  const [walletAddress, setWalletAddress] = useState<string>('');
   const [authError, setAuthError] = useState('');
+  const [isConnecting, setIsConnecting] = useState(false);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [health, setHealth] = useState<{
     status: string;
@@ -64,22 +65,42 @@ export default function AdminPage() {
     }
   }, [fetchData, isAuthorized]);
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAuth = async (address: string) => {
     setAuthError('');
-    const result = await authenticateAdmin(adminKey);
+    const result = await authenticateAdmin(address);
     if (result.success) {
       setIsAuthorized(true);
       fetchData();
     } else {
-      setAuthError(result.error || 'Invalid admin key');
+      setAuthError(result.error || 'Unauthorized wallet address');
+    }
+  };
+
+  const connectWallet = async () => {
+    setIsConnecting(true);
+    setAuthError('');
+    try {
+      const freighterApi = await import('@stellar/freighter-api');
+      const publicKey = await freighterApi.requestAccess();
+
+      if (!publicKey) {
+        throw new Error('User denied access');
+      }
+
+      setWalletAddress(publicKey);
+      await handleAuth(publicKey);
+    } catch (err: unknown) {
+      const e = err as Error;
+      setAuthError(e.message || 'Failed to connect wallet');
+    } finally {
+      setIsConnecting(false);
     }
   };
 
   const handleLogout = async () => {
     await logoutAdmin();
     setIsAuthorized(false);
-    setAdminKeyInput('');
+    setWalletAddress('');
     router.push('/dashboard');
   };
 
@@ -143,28 +164,35 @@ export default function AdminPage() {
           </div>
           <h1 className="text-xl font-bold text-white mb-2">Admin Access Required</h1>
           <p className="text-gray-500 text-sm mb-6">
-            Enter your admin secret key to access the dashboard.
+            Connect your admin wallet to access the dashboard.
           </p>
-          <form onSubmit={handleAuth} className="space-y-4">
-            <div>
-              <input
-                type="password"
-                value={adminKey}
-                onChange={(e) => setAdminKeyInput(e.target.value)}
-                placeholder="Enter admin secret key"
-                className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.06] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all"
-              />
+          {authError && (
+            <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-4">
+              {authError}
             </div>
-            {authError && (
-              <p className="text-red-400 text-sm">{authError}</p>
+          )}
+          <button
+            onClick={connectWallet}
+            disabled={isConnecting}
+            className="w-full py-3 px-4 bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-medium rounded-xl hover:from-violet-600 hover:to-indigo-700 transition-all duration-200 shadow-lg shadow-violet-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isConnecting ? (
+              <>
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Connecting...
+              </>
+            ) : (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Connect Freighter Wallet
+              </>
             )}
-            <button
-              type="submit"
-              className="w-full py-3 px-4 bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-medium rounded-xl hover:from-violet-600 hover:to-indigo-700 transition-all duration-200 shadow-lg shadow-violet-500/20"
-            >
-              Access Dashboard
-            </button>
-          </form>
+          </button>
           <div className="mt-6 pt-6 border-t border-white/[0.06]">
             <Link
               href="/dashboard"

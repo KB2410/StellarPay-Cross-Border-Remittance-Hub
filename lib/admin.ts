@@ -1,17 +1,17 @@
-// Admin authentication utility using server-side API
-// This ensures the admin secret key is never exposed to the client
+// Admin authentication utility using wallet address
+// Only the specific admin wallet address can access the admin portal
 
 export interface AuthResult {
   success: boolean;
   error?: string;
 }
 
-export async function authenticateAdmin(adminKey: string): Promise<AuthResult> {
+export async function authenticateAdmin(walletAddress: string): Promise<AuthResult> {
   try {
     const response = await fetch('/api/admin/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ adminKey }),
+      body: JSON.stringify({ walletAddress }),
     });
 
     if (response.ok) {

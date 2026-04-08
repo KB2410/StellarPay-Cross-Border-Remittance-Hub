@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
 
-const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY;
-const JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'fallback-secret-change-in-production';
+const ADMIN_WALLET_ADDRESS = process.env.ADMIN_WALLET_ADDRESS;
 const TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
 function generateToken(): string {
@@ -12,18 +11,18 @@ function generateToken(): string {
 
 export async function POST(request: Request) {
   try {
-    const { adminKey } = await request.json();
+    const { walletAddress } = await request.json();
 
-    if (!ADMIN_SECRET_KEY) {
+    if (!ADMIN_WALLET_ADDRESS) {
       return NextResponse.json(
-        { error: 'Admin authentication not configured' },
+        { error: 'Admin wallet not configured' },
         { status: 500 }
       );
     }
 
-    if (!adminKey || adminKey !== ADMIN_SECRET_KEY) {
+    if (!walletAddress || walletAddress !== ADMIN_WALLET_ADDRESS) {
       return NextResponse.json(
-        { error: 'Invalid admin key' },
+        { error: 'Unauthorized wallet address' },
         { status: 401 }
       );
     }
