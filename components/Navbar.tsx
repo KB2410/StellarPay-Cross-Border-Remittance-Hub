@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { isAdmin, authenticateAdmin } from '@/lib/admin';
+import { isAdmin, authenticateAdmin, logoutAdmin } from '@/lib/admin';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -11,13 +11,16 @@ export default function Navbar() {
 
   useEffect(() => {
     async function checkAdmin() {
-      // First check if already authenticated
+      // First check if already authenticated with valid wallet
       const admin = await isAdmin();
       if (admin) {
         setIsAdminUser(true);
         setIsLoading(false);
         return;
       }
+
+      // If not admin but has cookie, clear invalid session
+      await logoutAdmin();
 
       // Check if connected wallet is admin and auto-authenticate
       const connectedWallet = localStorage.getItem('stellarpay_pubkey');

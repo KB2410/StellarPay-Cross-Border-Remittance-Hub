@@ -41,8 +41,8 @@ export async function POST(request: Request) {
       path: '/',
     });
 
-    // Store token in cookie for validation
-    cookieStore.set('admin_token', `${token}:${expiresAt}`, {
+    // Store token with wallet address for validation
+    cookieStore.set('admin_token', `${token}:${expiresAt}:${walletAddress}`, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
