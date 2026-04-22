@@ -1,17 +1,17 @@
-// Admin authentication utility using wallet address
-// Only the specific admin wallet address can access the admin portal
+// Admin authentication utility using a password-protected portal session.
 
 export interface AuthResult {
   success: boolean;
   error?: string;
 }
 
-export async function authenticateAdmin(walletAddress: string): Promise<AuthResult> {
+export async function authenticateAdmin(password: string): Promise<AuthResult> {
   try {
     const response = await fetch('/api/admin/auth', {
-      method: 'POST',
+      body: JSON.stringify({ password }),
+      credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ walletAddress }),
+      method: 'POST',
     });
 
     if (response.ok) {

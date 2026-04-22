@@ -10,8 +10,22 @@ export async function setupVaultAccount(
   vaultKeypair: StellarSdk.Keypair,
   coSignerPublicKey: string
 ): Promise<string> {
-  const sourceAccount = await server.loadAccount(vaultKeypair.publicKey());
+  const xdr = await buildVaultSetupTransaction(
+    vaultKeypair.publicKey(),
+    coSignerPublicKey
+  );
+  const tx = StellarSdk.TransactionBuilder.fromXDR(xdr, network);
 
+  tx.sign(vaultKeypair);
+  const result = await server.submitTransaction(tx);
+  return result.hash;
+}
+
+export async function buildVaultSetupTransaction(
+  vaultPublicKey: string,
+  coSignerPublicKey: string
+): Promise<string> {
+  const sourceAccount = await server.loadAccount(vaultPublicKey);
   const tx = new StellarSdk.TransactionBuilder(sourceAccount, {
     fee: StellarSdk.BASE_FEE,
     networkPassphrase: network,
@@ -28,9 +42,7 @@ export async function setupVaultAccount(
     .setTimeout(30)
     .build();
 
-  tx.sign(vaultKeypair);
-  const result = await server.submitTransaction(tx);
-  return result.hash;
+  return tx.toXDR();
 }
 
 /**

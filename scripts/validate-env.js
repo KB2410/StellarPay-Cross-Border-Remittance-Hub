@@ -36,6 +36,68 @@ function checkEnvVar(name, required = true) {
   return true;
 }
 
+function checkPublicKey(name, value) {
+  if (!value) {
+    return false;
+  }
+
+  const looksValid = value.startsWith('G') && value.length === 56;
+
+  if (!looksValid) {
+    log(`✗ ${name} is not a valid Stellar public key`, 'red');
+    return false;
+  }
+
+  log(`✓ ${name} format is valid`, 'green');
+  return true;
+}
+
+function checkAdminPasswordConfig() {
+  const password = process.env.ADMIN_PORTAL_PASSWORD;
+  const passwordHash = process.env.ADMIN_PORTAL_PASSWORD_HASH;
+
+  if (passwordHash) {
+    const looksValid = /^[a-f0-9]{64}$/i.test(passwordHash.trim());
+
+    if (!looksValid) {
+      log(
+        '✗ ADMIN_PORTAL_PASSWORD_HASH must be a 64-character SHA-256 hex hash',
+        'red'
+      );
+      return false;
+    }
+
+    log('✓ ADMIN_PORTAL_PASSWORD_HASH is set', 'green');
+    return true;
+  }
+
+  if (password) {
+    if (password.length < 12) {
+      log(
+        '⚠ ADMIN_PORTAL_PASSWORD is set but is shorter than 12 characters',
+        'yellow'
+      );
+    } else {
+      log('✓ ADMIN_PORTAL_PASSWORD is set', 'green');
+    }
+    return true;
+  }
+
+  if (process.env.ADMIN_AUTH_SECRET) {
+    log(
+      '⚠ ADMIN_PORTAL_PASSWORD is not set. The portal will fall back to ADMIN_AUTH_SECRET.',
+      'yellow'
+    );
+    return true;
+  }
+
+  log(
+    '✗ ADMIN_PORTAL_PASSWORD, ADMIN_PORTAL_PASSWORD_HASH, or ADMIN_AUTH_SECRET is missing (required)',
+    'red'
+  );
+  return false;
+}
+
 async function testHorizonConnection(url) {
   return new Promise((resolve) => {
     https.get(url, (res) => {
@@ -53,22 +115,25 @@ async function testHorizonConnection(url) {
   });
 }
 
-async function testSupabaseConnection(url, anonKey) {
+async function testSupabaseConnection(url, serviceKey) {
   return new Promise((resolve) => {
     const options = {
       method: 'GET',
       headers: {
-        'apikey': anonKey,
-        'Authorization': `Bearer ${anonKey}`,
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
       },
     };
 
     https.get(`${url}/rest/v1/`, options, (res) => {
       if (res.statusCode === 200 || res.statusCode === 404) {
-        log(`✓ Supabase connection successful`, 'green');
+        log(`✓ Supabase connection successful (service role)`, 'green');
         resolve(true);
       } else {
-        log(`✗ Supabase connection failed (status: ${res.statusCode})`, 'red');
+        log(
+          `✗ Supabase connection failed (status: ${res.statusCode})`,
+          'red'
+        );
         resolve(false);
       }
     }).on('error', (err) => {
@@ -99,6 +164,10 @@ async function main() {
   allValid &= checkEnvVar('NEXT_PUBLIC_SUPABASE_URL');
   allValid &= checkEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY');
   allValid &= checkEnvVar('SUPABASE_SERVICE_ROLE_KEY');
+  allValid &= checkEnvVar('ADMIN_WALLET_ADDRESS');
+  allValid &= checkEnvVar('ADMIN_AUTH_SECRET');
+  allValid &= checkEnvVar('AUTH_CHALLENGE_SOURCE_PUBLIC_KEY');
+  allValid &= checkAdminPasswordConfig();
   
   // Optional variables
   checkEnvVar('NEXT_PUBLIC_SENTRY_DSN', false);
@@ -112,9 +181,9 @@ async function main() {
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (supabaseUrl && supabaseAnonKey) {
-    allValid &= await testSupabaseConnection(supabaseUrl, supabaseAnonKey);
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (supabaseUrl && supabaseServiceKey) {
+    allValid &= await testSupabaseConnection(supabaseUrl, supabaseServiceKey);
   }
 
   // Validate Stellar network
@@ -130,11 +199,24 @@ async function main() {
 
   // Validate USDC issuer format
   const usdcIssuer = process.env.NEXT_PUBLIC_USDC_ISSUER;
-  if (usdcIssuer && usdcIssuer.startsWith('G') && usdcIssuer.length === 56) {
-    log(`✓ USDC issuer format is valid`, 'green');
-  } else {
-    log(`✗ Invalid USDC issuer format`, 'red');
-    allValid = false;
+  allValid &= checkPublicKey('NEXT_PUBLIC_USDC_ISSUER', usdcIssuer);
+  allValid &= checkPublicKey(
+    'AUTH_CHALLENGE_SOURCE_PUBLIC_KEY',
+    process.env.AUTH_CHALLENGE_SOURCE_PUBLIC_KEY
+  );
+  allValid &= checkPublicKey(
+    'ADMIN_WALLET_ADDRESS',
+    process.env.ADMIN_WALLET_ADDRESS
+  );
+
+  if (
+    process.env.ADMIN_AUTH_SECRET &&
+    process.env.ADMIN_AUTH_SECRET === process.env.SUPABASE_SERVICE_ROLE_KEY
+  ) {
+    log(
+      '⚠ ADMIN_AUTH_SECRET matches SUPABASE_SERVICE_ROLE_KEY. Use a dedicated auth secret in production.',
+      'yellow'
+    );
   }
 
   // Final result

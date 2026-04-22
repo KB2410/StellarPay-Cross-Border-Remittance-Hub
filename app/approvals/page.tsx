@@ -1,23 +1,48 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { submitTransaction } from '@/lib/stellar';
+import { network, submitTransaction } from '@/lib/stellar';
 import { inspectTransaction } from '@/lib/multisig';
 import type { PendingTransaction } from '@/types';
+import { establishWalletSession } from '@/lib/wallet-session';
 
 export default function ApprovalsPage() {
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [pendingTxs, setPendingTxs] = useState<PendingTransaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [signingId, setSigningId] = useState<string | null>(null);
-  const [secretKey, setSecretKey] = useState('');
   const [status, setStatus] = useState<{
     type: 'success' | 'error';
     message: string;
   } | null>(null);
   const router = useRouter();
+
+  const fetchPendingTransactions = useCallback(async (walletAddress: string) => {
+    try {
+      const walletSessionEstablished = await establishWalletSession(walletAddress);
+
+      if (!walletSessionEstablished) {
+        throw new Error('Please reconnect your wallet to review approvals');
+      }
+
+      const res = await fetch('/api/multisig', {
+        credentials: 'same-origin',
+      });
+      const data = await res.json();
+      setPendingTxs(data.pendingTransactions || []);
+      setStatus(null);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to load pending approvals';
+      setPendingTxs([]);
+      setStatus({ type: 'error', message });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     const key = localStorage.getItem('stellarpay_pubkey');
@@ -26,47 +51,26 @@ export default function ApprovalsPage() {
       return;
     }
     setPublicKey(key);
-    fetchPendingTransactions();
-  }, [router]);
-
-  async function fetchPendingTransactions() {
-    try {
-      const res = await fetch('/api/multisig');
-      const data = await res.json();
-      setPendingTxs(data.pendingTransactions || []);
-    } catch {
-      // Supabase might not be configured
-      setPendingTxs([]);
-    } finally {
-      setLoading(false);
-    }
-  }
+    void fetchPendingTransactions(key);
+  }, [fetchPendingTransactions, router]);
 
   async function handleSignAndExecute(tx: PendingTransaction) {
     setStatus(null);
 
-    const isFreighter =
-      localStorage.getItem('stellarpay_is_freighter') === 'true';
-
     try {
-      let signedXdr: string;
+      const walletSessionEstablished = await establishWalletSession(
+        publicKey || ''
+      );
 
-      if (isFreighter) {
-        const freighterApi = await import('@stellar/freighter-api');
-        signedXdr = await freighterApi.signTransaction(tx.xdr_payload, {
-          networkPassphrase: 'Test SDF Network ; September 2015',
-        });
-      } else {
-        if (!secretKey) {
-          setSigningId(tx.id);
-          return;
-        }
-
-        const StellarSdk = await import('@stellar/stellar-sdk');
-        const { signPendingTransaction } = await import('@/lib/multisig');
-        const keypair = StellarSdk.Keypair.fromSecret(secretKey);
-        signedXdr = signPendingTransaction(tx.xdr_payload, keypair);
+      if (!walletSessionEstablished) {
+        throw new Error('Please reconnect your wallet to sign approvals');
       }
+
+      const freighterApi = await import('@stellar/freighter-api');
+      const signedXdr = await freighterApi.signTransaction(tx.xdr_payload, {
+        accountToSign: publicKey!,
+        networkPassphrase: network,
+      });
 
       // Submit to Horizon
       const result = await submitTransaction(signedXdr);
@@ -74,6 +78,7 @@ export default function ApprovalsPage() {
       if (result.success) {
         // Update the pending tx status
         await fetch('/api/multisig', {
+          credentials: 'same-origin',
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -87,10 +92,9 @@ export default function ApprovalsPage() {
           type: 'success',
           message: `Transaction executed! TX: ${result.hash?.slice(0, 12)}...`,
         });
-
-        setSigningId(null);
-        setSecretKey('');
-        fetchPendingTransactions();
+        if (publicKey) {
+          void fetchPendingTransactions(publicKey);
+        }
       } else {
         throw new Error(result.error || 'Submission failed');
       }
@@ -103,11 +107,14 @@ export default function ApprovalsPage() {
   async function handleReject(txId: string) {
     try {
       await fetch('/api/multisig', {
+        credentials: 'same-origin',
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'reject', txId }),
       });
-      fetchPendingTransactions();
+      if (publicKey) {
+        void fetchPendingTransactions(publicKey);
+      }
     } catch {
       // silent
     }
@@ -134,7 +141,11 @@ export default function ApprovalsPage() {
           </p>
         </div>
         <button
-          onClick={fetchPendingTransactions}
+          onClick={() => {
+            if (publicKey) {
+              void fetchPendingTransactions(publicKey);
+            }
+          }}
           className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm text-gray-300 transition-all"
         >
           Refresh
@@ -225,26 +236,13 @@ export default function ApprovalsPage() {
                   </div>
                 </div>
 
-                {/* Secret key input for non-Freighter users */}
-                {signingId === tx.id && (
-                  <div className="mb-4">
-                    <input
-                      type="password"
-                      value={secretKey}
-                      onChange={(e) => setSecretKey(e.target.value)}
-                      placeholder="Enter your secret key (S...)"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-mono text-sm"
-                    />
-                  </div>
-                )}
-
                 {/* Actions */}
                 <div className="flex gap-3">
                   <button
                     onClick={() => handleSignAndExecute(tx)}
                     className="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white rounded-xl text-sm font-semibold transition-all"
                   >
-                    {signingId === tx.id ? 'Confirm & Execute' : 'Sign & Execute'}
+                    Sign & Execute
                   </button>
                   <button
                     onClick={() => handleReject(tx.id)}

@@ -57,3 +57,17 @@ GOOGLE_FORM_TEMPLATE.md
 
 # Screenshots (can be added selectively if needed for documentation)
 screenshots/
+
+# AI/IDE tool directories
+.agents/
+.claude/
+.trae/
+.windsurf/
+skills-lock.json
+
+# Temporary how-to files
+HOW_TO_FUND_USDC.md
+
+# Supabase local dev
+supabase/.branches/
+supabase/.temp/

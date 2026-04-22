@@ -15,6 +15,7 @@ import {
   validateMemo,
   sanitizeInput,
 } from '@/lib/validation';
+import { establishWalletSession } from '@/lib/wallet-session';
 
 interface SendFormProps {
   publicKey: string;
@@ -38,6 +39,12 @@ export default function SendForm({ publicKey }: SendFormProps) {
     setLoading(true);
 
     try {
+      const walletSessionEstablished = await establishWalletSession(publicKey);
+
+      if (!walletSessionEstablished) {
+        throw new Error('Please reconnect your wallet to continue');
+      }
+
       // Sanitize inputs
       const sanitizedRecipient = sanitizeInput(recipient);
       const sanitizedAmount = sanitizeInput(amount);
@@ -88,15 +95,23 @@ export default function SendForm({ publicKey }: SendFormProps) {
       const isVault = await isMultisigAccount(publicKey);
 
       if (isVault) {
+        const freighterApi = await import('@stellar/freighter-api');
+        const { network } = await import('@/lib/stellar');
+        const signedVaultXdr = await freighterApi.signTransaction(xdr, {
+          accountToSign: publicKey,
+          networkPassphrase: network,
+        });
+
         // Send to multisig queue instead of submitting directly
         const res = await fetch('/api/multisig', {
           method: 'POST',
+          credentials: 'same-origin',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'create',
             vaultPublicKey: publicKey,
             creatorPublicKey: publicKey,
-            xdrPayload: xdr,
+            xdrPayload: signedVaultXdr,
           }),
         });
         const data = await res.json();
@@ -127,21 +142,20 @@ export default function SendForm({ publicKey }: SendFormProps) {
             type: 'success',
             message: `Payment sent! TX: ${result.hash?.slice(0, 12)}...`,
           });
-          // Log to Supabase
+
           try {
-            const { createClient } = await import('@/lib/supabase');
-            const supabase = createClient();
-            await supabase.from('transactions').insert([
-              {
-                user_public_key: publicKey,
-                stellar_tx_hash: result.hash,
-                direction: 'sent',
-                amount: parseFloat(sanitizedAmount),
+            await fetch('/api/transactions', {
+              body: JSON.stringify({
+                amount: sanitizedAmount,
                 asset: selectedAsset,
                 counterparty: sanitizedRecipient,
-                memo: sanitizedMemo || null,
-              },
-            ]);
+                memo: sanitizedMemo,
+                stellarTxHash: result.hash,
+              }),
+              credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' },
+              method: 'POST',
+            });
           } catch {
             // Non-blocking
           }

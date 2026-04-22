@@ -33,7 +33,7 @@ StellarPay implements multiple layers of security to protect user funds and data
 ### Testnet Accounts
 - **Freighter Required**: All users must have Freighter wallet installed and configured for Testnet
 - **User Responsibility**: Users must fund their own testnet accounts via Stellar Laboratory Friendbot
-- **Session Persistence**: Only public keys are stored in localStorage for session management
+- **Session Persistence**: Authentication uses signed, HTTP-only cookies; localStorage only caches the public key for UX convenience
 
 ---
 
@@ -68,32 +68,30 @@ StrKey.decodeEd25519PublicKey(address); // Throws if invalid
 ## 4. Database Security (Supabase)
 
 ### Row-Level Security (RLS)
-All tables have RLS enabled with strict policies:
+All tables have RLS enabled with a deny-by-default baseline:
 
 ```sql
--- Users table: Users can only read their own record
-CREATE POLICY "Users can view own record"
-  ON users FOR SELECT
-  USING (auth.uid() = id);
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE pending_transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE security_events ENABLE ROW LEVEL SECURITY;
 
--- Transactions: Users can only see their own transactions
-CREATE POLICY "Users can view own transactions"
-  ON transactions FOR SELECT
-  USING (user_public_key = current_setting('app.user_public_key'));
+CREATE POLICY "Block direct client reads on users"
+  ON users FOR SELECT USING (false);
 
--- Pending transactions: Only vault participants can view
-CREATE POLICY "Vault participants can view pending"
-  ON pending_transactions FOR SELECT
-  USING (
-    vault_public_key = current_setting('app.user_public_key') OR
-    creator_public_key = current_setting('app.user_public_key')
-  );
+CREATE POLICY "Block direct client transaction reads"
+  ON transactions FOR SELECT USING (false);
 ```
 
 ### API Key Management
-- **Anon Key**: Used for client-side queries, restricted by RLS
-- **Service Role Key**: Used only in server-side API routes for metrics aggregation
-- **Environment Variables**: All keys stored in `.env.local` (never committed to git)
+- **Anon Key**: Present for client initialization only; sensitive data access is not granted to browser clients
+- **Service Role Key**: Used only in trusted server-side API routes
+- **Dedicated Auth Secret**: `ADMIN_AUTH_SECRET` signs app sessions independently of Supabase credentials
+- **Environment Variables**: Secrets stay in `.env.local` or the hosting platform secret store and are never committed
+
+### Audit Logging
+- **Security Events**: Authentication failures, admin access, rate limiting, and sensitive transaction actions are written to `security_events`
+- **Minimal PII**: Logs store public keys, route metadata, hashed IP context, and outcome details only as needed for incident response
 
 ---
 
@@ -130,6 +128,14 @@ headers: [
 - **Script Sources**: Only trusted domains allowed
 - **Style Sources**: Inline styles restricted
 - **Connect Sources**: Limited to Stellar Horizon, Supabase, and Sentry
+
+### Authentication Controls
+- **Public Admin Portal**: The `/admin` page is publicly reachable, but the dashboard requires a password login
+- **Portal Password Source**: The dashboard uses `ADMIN_PORTAL_PASSWORD` when set, otherwise it falls back to `ADMIN_AUTH_SECRET`
+- **Signed Wallet Challenges**: Wallet sessions still require a valid Freighter-signed Stellar challenge transaction
+- **HTTP-Only Sessions**: Session cookies are `httpOnly`, `sameSite=strict`, and `secure` in production
+- **Route Guards**: Admin metrics and health endpoints enforce server-side authorization
+- **Rate Limiting**: Auth, multisig, profile, and transaction routes are rate-limited to reduce abuse
 
 ### Input Sanitization
 - All user inputs validated on both client and server
@@ -170,7 +176,7 @@ headers: [
 - **Environment Variables**: All secrets stored in Vercel dashboard (encrypted at rest)
 - **HTTPS Only**: All traffic forced to HTTPS
 - **DDoS Protection**: Vercel's built-in protection enabled
-- **Rate Limiting**: API routes protected by Vercel's edge network
+- **Application Rate Limiting**: Sensitive routes have in-app rate limits; for multi-instance deployments, move these buckets to Redis/Upstash
 
 ### Dependency Management
 - **npm audit**: Run regularly to check for vulnerabilities
@@ -185,12 +191,12 @@ headers: [
 - **Testnet Only**: Not audited for mainnet use
 - **Freighter Required**: Users must install Freighter browser extension
 - **No 2FA**: Multi-factor authentication not yet implemented
-- **Limited Rate Limiting**: API routes could benefit from stricter rate limits
+- **In-Memory Rate Limiting**: Current rate-limit buckets are process-local and should be externalized for horizontally scaled production deployments
 
 ### Planned Improvements
 - [ ] Hardware wallet support (Ledger)
 - [ ] Email/SMS 2FA for vault operations
-- [ ] Rate limiting per user/IP
+- [ ] Redis/Upstash-backed distributed rate limiting
 - [ ] Formal security audit before mainnet deployment
 - [ ] Bug bounty program
 - [ ] Additional wallet support (Albedo, Rabet)
@@ -249,5 +255,5 @@ If you discover a security vulnerability, please report it responsibly:
 
 ---
 
-**Last Updated**: April 4, 2026  
-**Version**: 1.0.0
+**Last Updated**: April 8, 2026  
+**Version**: 1.1.0

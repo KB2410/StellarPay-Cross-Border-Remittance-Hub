@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
+import { getAdminSession } from '@/lib/auth-session';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  const adminSession = await getAdminSession();
+
+  if (!adminSession) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const checks: Record<string, string> = {};
 
   // Check Horizon connectivity

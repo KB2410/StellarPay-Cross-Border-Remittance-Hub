@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
@@ -17,9 +17,9 @@ const MetricsChart = dynamic(() => import('@/components/MetricsChart'), {
 export default function AdminPage() {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [walletAddress, setWalletAddress] = useState<string>('');
   const [authError, setAuthError] = useState('');
-  const [isConnecting, setIsConnecting] = useState(false);
+  const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [health, setHealth] = useState<{
     status: string;
@@ -65,43 +65,31 @@ export default function AdminPage() {
     }
   }, [fetchData, isAuthorized]);
 
-  const handleAuth = async (address: string) => {
+  const handleAuth = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setAuthError('');
-    const result = await authenticateAdmin(address);
-    if (result.success) {
-      setIsAuthorized(true);
-      fetchData();
-    } else {
-      setAuthError(result.error || 'Unauthorized wallet address');
-    }
-  };
-
-  const connectWallet = async () => {
-    setIsConnecting(true);
-    setAuthError('');
+    setIsSubmitting(true);
     try {
-      const freighterApi = await import('@stellar/freighter-api');
-      const publicKey = await freighterApi.requestAccess();
-
-      if (!publicKey) {
-        throw new Error('User denied access');
+      const result = await authenticateAdmin(password);
+      if (result.success) {
+        setIsAuthorized(true);
+        setPassword('');
+        fetchData();
+      } else {
+        setAuthError(result.error || 'Invalid password');
       }
-
-      setWalletAddress(publicKey);
-      await handleAuth(publicKey);
-    } catch (err: unknown) {
-      const e = err as Error;
-      setAuthError(e.message || 'Failed to connect wallet');
     } finally {
-      setIsConnecting(false);
+      setIsSubmitting(false);
     }
   };
 
   const handleLogout = async () => {
     await logoutAdmin();
     setIsAuthorized(false);
-    setWalletAddress('');
-    router.push('/dashboard');
+    setMetrics(null);
+    setHealth(null);
+    setLastUpdated('');
+    router.replace('/admin');
   };
 
   const statCards = metrics
@@ -164,35 +152,46 @@ export default function AdminPage() {
           </div>
           <h1 className="text-xl font-bold text-white mb-2">Admin Access Required</h1>
           <p className="text-gray-500 text-sm mb-6">
-            Connect your admin wallet to access the dashboard.
+            This portal is public, but dashboard access requires the admin password.
           </p>
           {authError && (
             <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm mb-4">
               {authError}
             </div>
           )}
-          <button
-            onClick={connectWallet}
-            disabled={isConnecting}
-            className="w-full py-3 px-4 bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-medium rounded-xl hover:from-violet-600 hover:to-indigo-700 transition-all duration-200 shadow-lg shadow-violet-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isConnecting ? (
-              <>
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Connecting...
-              </>
-            ) : (
-              <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Connect Freighter Wallet
-              </>
-            )}
-          </button>
+          <form onSubmit={handleAuth} className="space-y-4">
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter admin password"
+              autoComplete="current-password"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all"
+              required
+            />
+            <button
+              type="submit"
+              disabled={isSubmitting || !password}
+              className="w-full py-3 px-4 bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-medium rounded-xl hover:from-violet-600 hover:to-indigo-700 transition-all duration-200 shadow-lg shadow-violet-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Unlocking...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  Unlock Portal
+                </>
+              )}
+            </button>
+          </form>
           <div className="mt-6 pt-6 border-t border-white/[0.06]">
             <Link
               href="/dashboard"

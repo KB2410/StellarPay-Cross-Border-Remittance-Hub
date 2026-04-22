@@ -9,6 +9,15 @@ export interface PerformanceMetric {
   metadata?: Record<string, unknown>;
 }
 
+interface FirstInputPerformanceEntry extends PerformanceEntry {
+  processingStart?: number;
+}
+
+interface LayoutShiftPerformanceEntry extends PerformanceEntry {
+  hadRecentInput?: boolean;
+  value?: number;
+}
+
 class PerformanceMonitor {
   private metrics: Map<string, number> = new Map();
   private enabled: boolean;
@@ -112,7 +121,7 @@ class PerformanceMonitor {
     new PerformanceObserver((list) => {
       const entries = list.getEntries();
       entries.forEach((entry: PerformanceEntry) => {
-        const fidEntry = entry as any;
+        const fidEntry = entry as FirstInputPerformanceEntry;
         if (fidEntry.processingStart) {
           const fid = fidEntry.processingStart - fidEntry.startTime;
           console.log('FID:', fid);
@@ -125,7 +134,7 @@ class PerformanceMonitor {
     new PerformanceObserver((list) => {
       const entries = list.getEntries();
       entries.forEach((entry: PerformanceEntry) => {
-        const layoutShiftEntry = entry as any;
+        const layoutShiftEntry = entry as LayoutShiftPerformanceEntry;
         if (!layoutShiftEntry.hadRecentInput && layoutShiftEntry.value) {
           clsScore += layoutShiftEntry.value;
         }

@@ -30,7 +30,11 @@ export default function SetupPage() {
       
       // Check if trustline already exists
       const hasUSDC = account.balances.some(
-        (b: any) =>
+        (b: {
+          asset_code?: string;
+          asset_issuer?: string;
+          asset_type: string;
+        }) =>
           b.asset_type !== 'native' &&
           b.asset_code === 'USDC' &&
           b.asset_issuer === USDC_ISSUER

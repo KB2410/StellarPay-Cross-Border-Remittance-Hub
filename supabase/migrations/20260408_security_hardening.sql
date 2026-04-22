@@ -1,40 +1,7 @@
--- StellarPay Remittance Hub — Supabase bootstrap schema
--- Use this file for a fresh database. For existing projects, prefer the
--- incremental migration in supabase/migrations/20260408_security_hardening.sql.
+-- StellarPay Remittance Hub — Incremental security hardening migration
+-- Use this on an existing Supabase project where the base tables already exist.
 
 create extension if not exists "pgcrypto" with schema extensions;
-
-create table if not exists users (
-  id uuid primary key default gen_random_uuid(),
-  stellar_public_key text unique not null,
-  display_name text,
-  email text,
-  created_at timestamptz default now(),
-  last_active_at timestamptz default now()
-);
-
-create table if not exists transactions (
-  id uuid primary key default gen_random_uuid(),
-  user_public_key text not null,
-  stellar_tx_hash text unique,
-  direction text check (direction in ('sent','received')),
-  amount numeric,
-  asset text default 'USDC',
-  counterparty text,
-  memo text,
-  created_at timestamptz default now()
-);
-
-create table if not exists pending_transactions (
-  id uuid primary key default gen_random_uuid(),
-  vault_public_key text not null,
-  creator_public_key text not null,
-  xdr_payload text not null,
-  required_signatures integer default 2,
-  current_signatures integer default 1,
-  status text check (status in ('pending', 'executed', 'rejected')) default 'pending',
-  created_at timestamptz default now()
-);
 
 create table if not exists security_events (
   id uuid primary key default gen_random_uuid(),
@@ -49,22 +16,14 @@ create table if not exists security_events (
   created_at timestamptz default now()
 );
 
-create index if not exists idx_tx_user on transactions(user_public_key);
-create index if not exists idx_tx_created on transactions(created_at);
-create index if not exists idx_users_key on users(stellar_public_key);
-create index if not exists idx_pending_vault on pending_transactions(vault_public_key);
 create index if not exists idx_security_events_created on security_events(created_at desc);
 create index if not exists idx_security_events_action on security_events(action);
 
--- Enable Row Level Security
 alter table users enable row level security;
 alter table transactions enable row level security;
 alter table pending_transactions enable row level security;
 alter table security_events enable row level security;
 
--- Hardened baseline: all application access should go through server-side API
--- routes using the Supabase service role key. This prevents anonymous clients
--- from reading or mutating platform data directly from the browser.
 revoke all on table users from anon, authenticated;
 revoke all on table transactions from anon, authenticated;
 revoke all on table pending_transactions from anon, authenticated;

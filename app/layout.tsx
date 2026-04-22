@@ -1,13 +1,7 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import Navbar from '@/components/Navbar';
 import './globals.css';
-
-const inter = Inter({
-  variable: '--font-inter',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: 'StellarPay — Cross-Border Remittance Hub',
@@ -22,10 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} h-full antialiased`}
-    >
+    <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <ErrorBoundary>
           <Navbar />

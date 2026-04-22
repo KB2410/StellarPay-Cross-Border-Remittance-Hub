@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase';
+import { establishWalletSession } from '@/lib/wallet-session';
 
 interface WalletConnectProps {
   onConnect?: (publicKey: string) => void;
@@ -26,8 +26,13 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
         throw new Error('User denied access');
       }
 
-      // Save user to Supabase
-      await saveUser(publicKey);
+      const walletSessionEstablished = await establishWalletSession(publicKey);
+
+      if (!walletSessionEstablished) {
+        throw new Error('Failed to verify wallet session');
+      }
+
+      await saveUser();
 
       if (onConnect) onConnect(publicKey);
       localStorage.setItem('stellarpay_pubkey', publicKey);
@@ -50,13 +55,13 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
     }
   }
 
-  async function saveUser(publicKey: string) {
+  async function saveUser() {
     try {
-      const supabase = createClient();
-      await supabase.from('users').upsert(
-        { stellar_public_key: publicKey, last_active_at: new Date().toISOString() },
-        { onConflict: 'stellar_public_key' }
-      );
+      await fetch('/api/wallet/profile', {
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+      });
     } catch {
       // Supabase might not be configured yet — non-blocking
     }
@@ -106,7 +111,7 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
           rel="noopener noreferrer"
           className="text-violet-400 hover:text-violet-300 underline"
         >
-          Don't have Freighter?
+          Don&apos;t have Freighter?
         </a>
       </p>
     </div>

@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server';
+import { getAdminSession } from '@/lib/auth-session';
 import { createAdminClient } from '@/lib/supabase';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const adminSession = await getAdminSession();
+
+    if (!adminSession) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const supabase = createAdminClient();
 
     // Total users

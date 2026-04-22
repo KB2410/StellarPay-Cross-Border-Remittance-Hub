@@ -3,7 +3,7 @@
 > Instant USDC remittances on the Stellar blockchain with multi-signature vault security.
 
 ![Stellar](https://img.shields.io/badge/Stellar-Testnet-blue)
-![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![Next.js](https://img.shields.io/badge/Next.js-16-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -45,7 +45,7 @@
 
 --- Overview
 
-StellarPay is a production-ready remittance web application built on the Stellar blockchain. Users connect their Freighter wallet to send/receive USDC and can upgrade their account into a **Multi-Signature Vault** for joint custody. An admin dashboard tracks live platform metrics.
+StellarPay is a production-ready remittance web application built on the Stellar blockchain. Users connect their Freighter wallet to send and receive assets through signed wallet challenges, can upgrade their account into a **Multi-Signature Vault** for joint custody, and access a public admin portal protected by a password login.
 
 ### 📊 User Onboarding & Feedback
 
@@ -198,13 +198,13 @@ Based on collected user feedback and platform analytics, here are the improvemen
 - **Transaction History** — Full operation history from the Stellar Horizon API
 - **Admin Dashboard** — Real-time metrics (users, DAU, transactions, volume) with Recharts
 - **Health Monitoring** — `/api/health` endpoint checking Horizon + Supabase connectivity
-- **Security Hardening** — HSTS, X-Frame-Options, input validation, Freighter-only authentication
+- **Security Hardening** — HSTS, X-Frame-Options, CSP, signed wallet challenges, rate limiting, and strict server-side data access
 
 ## 🏗 Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | Next.js 14 (App Router) + Tailwind CSS |
+| Frontend | Next.js 16 (App Router) + Tailwind CSS |
 | Blockchain | Stellar SDK (`@stellar/stellar-sdk`) + Horizon Testnet |
 | Wallet | Freighter (`@stellar/freighter-api`) |
 | Database | Supabase (PostgreSQL + RLS) |
@@ -272,17 +272,27 @@ NEXT_PUBLIC_USDC_ISSUER=GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+ADMIN_WALLET_ADDRESS=your-admin-wallet-public-key
+ADMIN_AUTH_SECRET=your-long-random-auth-secret
+AUTH_CHALLENGE_SOURCE_PUBLIC_KEY=stellar-public-key-used-for-auth-challenges
+# Optional dedicated portal password. If omitted, ADMIN_AUTH_SECRET is used.
+ADMIN_PORTAL_PASSWORD=your-admin-portal-password
 NEXT_PUBLIC_SENTRY_DSN=your-sentry-dsn
 ```
 
 ### 3. Database Setup
 
-Run the SQL in `supabase-schema.sql` in your Supabase SQL editor. This creates:
+For a brand-new Supabase project, run `supabase-schema.sql` in the SQL editor.
+
+For an existing Supabase project that already has the core tables, run `supabase/migrations/20260408_security_hardening.sql` instead.
+
+These scripts create or harden:
 
 - `users` — Stellar public key registry
 - `transactions` — Payment log with direction, amount, counterparty
 - `pending_transactions` — Multi-sig XDR queue with signature tracking
-- Row Level Security policies
+- `security_events` — Audit trail for auth, admin, and transaction-sensitive actions
+- Strict Row Level Security policies that block direct browser reads and writes
 - Performance indexes
 
 ### 4. Run Development Server
@@ -337,7 +347,11 @@ const tx = new TransactionBuilder(sourceAccount, { fee: BASE_FEE, networkPassphr
 
 - All Stellar addresses validated with `StrKey.decodeEd25519PublicKey()`
 - Payment amounts validated: positive, max 6 decimals
-- Secret keys never logged or stored (used once for vault setup, then cleared from memory)
+- Freighter signs auth challenges and transactions; secret keys never enter the app or API
+- Admin access is protected by a password login and secure server-side sessions
+- Sensitive Supabase access is server-side only through authenticated API routes
+- Security audit events are recorded in `security_events`
+- Rate limiting is enabled on auth, multisig, profile, and transaction routes
 - Security headers: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, `Referrer-Policy`, `Permissions-Policy`
 - Supabase Row Level Security enabled on all tables
 - Sentry error monitoring on all API routes
@@ -403,7 +417,7 @@ This project fulfills the **Stellar Mastery Level 6** requirements:
 ### ✅ Core Requirements
 - [x] **Production Deployment**: Live on Vercel at [stellar-pay-cross-border-remittance.vercel.app](https://stellar-pay-cross-border-remittance.vercel.app/)
 - [x] **Multi-Signature Implementation**: Native Stellar 2-of-2 multisig with XDR signing flow
-- [x] **Database Integration**: Supabase with RLS for metrics and pending transactions
+- [x] **Database Integration**: Supabase with hardened RLS and server-side access control
 - [x] **Monitoring**: Sentry integration for error tracking and performance monitoring
 - [x] **Security Hardening**: HSTS, CSP, input validation, RLS policies
 - [x] **Admin Dashboard**: Real-time metrics (DAU, transactions, volume)
