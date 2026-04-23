@@ -1,20 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { isAdmin } from '@/lib/admin';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isAdminUser, setIsAdminUser] = useState(false);
-
-  useEffect(() => {
-    async function checkAdmin() {
-      const admin = await isAdmin();
-      setIsAdminUser(admin);
-    }
-    checkAdmin();
-  }, []);
 
   const navLinks = [
     { href: '/dashboard', label: 'Dashboard' },
@@ -24,7 +14,7 @@ export default function Navbar() {
     { href: '/vault', label: 'Vault' },
     { href: '/approvals', label: 'Approvals' },
     { href: '/history', label: 'History' },
-    ...(isAdminUser ? [{ href: '/admin', label: 'Admin' }] : []),
+    { href: '/admin', label: 'Admin' },
   ];
 
   return (
