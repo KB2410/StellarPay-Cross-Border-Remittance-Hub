@@ -31,17 +31,35 @@ export default function AdminPage() {
   const fetchData = useCallback(async () => {
     if (!isAuthorized) return;
     try {
-      const [metricsRes, healthRes] = await Promise.all([
+      const [metricsRes, healthRes] = await Promise.allSettled([
         fetch('/api/metrics'),
         fetch('/api/health'),
       ]);
-      const metricsData = await metricsRes.json();
-      const healthData = await healthRes.json();
-      setMetrics(metricsData);
-      setHealth(healthData);
+
+      if (metricsRes.status === 'fulfilled') {
+        const metricsData = await metricsRes.value.json();
+        setMetrics({
+          totalUsers: metricsData.totalUsers ?? 0,
+          dau: metricsData.dau ?? 0,
+          totalTransactions: metricsData.totalTransactions ?? 0,
+          totalVolume: metricsData.totalVolume ?? 0,
+        });
+      } else {
+        setMetrics({ totalUsers: 0, dau: 0, totalTransactions: 0, totalVolume: 0 });
+      }
+
+      if (healthRes.status === 'fulfilled') {
+        const healthData = await healthRes.value.json();
+        setHealth(healthData);
+      } else {
+        setHealth({ status: 'degraded', checks: { horizon: 'unknown', supabase: 'unknown' } });
+      }
+
       setLastUpdated(new Date().toLocaleTimeString());
     } catch {
-      // API might not be fully configured
+      // Fallback: show zeros so the dashboard still renders
+      setMetrics({ totalUsers: 0, dau: 0, totalTransactions: 0, totalVolume: 0 });
+      setHealth({ status: 'degraded', checks: {} });
     } finally {
       setLoading(false);
     }
