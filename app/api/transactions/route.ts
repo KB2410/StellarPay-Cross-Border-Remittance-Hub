@@ -115,6 +115,16 @@ export async function POST(request: Request) {
     }
 
     const supabase = createAdminClient();
+
+    // Ensure user exists (upsert on connect may have failed silently)
+    await supabase.from('users').upsert(
+      {
+        last_active_at: new Date().toISOString(),
+        stellar_public_key: walletSession.walletAddress,
+      },
+      { onConflict: 'stellar_public_key' }
+    );
+
     const { error } = await supabase.from('transactions').insert([
       {
         amount: Number(amount),
