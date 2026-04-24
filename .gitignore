@@ -48,15 +48,17 @@ QUICK_USER_MESSAGE.txt
 SHARE_THIS_MESSAGE.txt
 USER_ONBOARDING_MESSAGE.md
 TWITTER_POST_DRAFT.md
-USER_FEEDBACK.md
-BLACK_BELT_SUMMARY.md
 GOOGLE_FORM_TEMPLATE.md
 
 # Kiro spec files (development artifacts, not needed in production repo)
 .kiro/
 
-# Screenshots (can be added selectively if needed for documentation)
-screenshots/
+# Screenshots and exported artifacts (track only submission proofs)
+screenshots/*
+!screenshots/.gitkeep
+!screenshots/admin-dashboard.png
+!screenshots/sentry_monitoring.png
+!screenshots/StellarPay User Onboarding & FeedbackStellarPay User OnbStellarPay User Onboarding & Feedbackoarding & Feedback.csv
 
 # AI/IDE tool directories
 .agents/

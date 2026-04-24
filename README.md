@@ -3,7 +3,7 @@
 > Instant USDC remittances on the Stellar blockchain with multi-signature vault security.
 
 ![Stellar](https://img.shields.io/badge/Stellar-Testnet-blue)
-![Next.js](https://img.shields.io/badge/Next.js-16-black)
+![Next.js](https://img.shields.io/badge/Next.js-14-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -51,7 +51,7 @@ StellarPay is a production-ready remittance web application built on the Stellar
 
 ### ✅ Verified Active Testnet Users
 
-**31 Verified Active Accounts** — All addresses confirmed active on [Stellar Expert](https://stellar.expert/explorer/testnet).
+**30 Verified Active Accounts** — All addresses confirmed active on [Stellar Expert](https://stellar.expert/explorer/testnet).
 
 | # | Stellar Address | Stellar Expert Link |
 |---|----------------|---------------------|
@@ -90,11 +90,11 @@ StellarPay is a production-ready remittance web application built on the Stellar
 
 ### 📊 User Onboarding & Feedback
 
-**31+ Active Users Onboarded** — 23 form responses collected. Real users testing the platform and providing feedback. Average rating: **4.96 / 5**.
+**30 Verified Active Users** — 23 Google Form responses collected from real testers. Average rating: **4.96 / 5**.
 
 - **Feedback Form**: [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSfmj1ORehGLPrhhICFu9p3wIN-uEbCUuSSZ5H_f5aqkxVq17Q/viewform)
-- **Responses Export**: [Download CSV](./screenshots/StellarPay%20User%20Onboarding%20%26%20FeedbackStellarPay%20User%20OnbStellarPay%20User%20Onboarding%20%26%20Feedbackoarding%20%26%20Feedback.csv) — 23 verified responses
-- **User Testimonials**: See [USER_FEEDBACK.md](./USER_FEEDBACK.md) for detailed responses with wallet addresses and ratings
+- **Responses Export**: [Download CSV](./screenshots/StellarPay%20User%20Onboarding%20%26%20FeedbackStellarPay%20User%20OnbStellarPay%20User%20Onboarding%20%26%20Feedbackoarding%20%26%20Feedback.csv) — 23 responses exported for analysis
+- **User Testimonials**: See [USER_FEEDBACK.md](./USER_FEEDBACK.md) for detailed responses, wallet data, and ratings
 
 ### 🚀 Future Improvements (Based on User Feedback)
 
@@ -511,7 +511,7 @@ MIT License. See [LICENSE](./LICENSE) for details.
 This project fulfills all **Stellar Mastery Level 6** requirements:
 
 ### ✅ Core Requirements
-- [x] **30+ verified active users** — 31 wallet addresses, all verifiable on Stellar Expert (see table above)
+- [x] **30+ verified active users** — 30 wallet addresses, all verifiable on Stellar Expert (see table above)
 - [x] **Metrics dashboard live** — [https://stellar-pay-cross-border-remittance.vercel.app/admin](https://stellar-pay-cross-border-remittance.vercel.app/admin)
 - [x] **Security checklist completed** — [SECURITY.md](./SECURITY.md)
 - [x] **Monitoring active** — Sentry on all API routes + screenshot above
@@ -519,17 +519,17 @@ This project fulfills all **Stellar Mastery Level 6** requirements:
 - [x] **Full documentation** — README, MULTISIG_GUIDE, SECURITY, USER_FEEDBACK, BLACK_BELT_SUMMARY
 - [x] **1 community contribution** — [Twitter/X Post](https://x.com/kartikb2410/status/2047700878447325695)
 - [x] **1 advanced feature** — Multi-Signature Logic (native Stellar SDK, 2-of-2 vault)
-- [x] **Minimum 15+ meaningful commits** — **60 commits** total
+- [x] **Minimum 15+ meaningful commits** — **61 commits** total
 
 ### ✅ User Onboarding
 - [x] **Google Form created** — [View Form](https://docs.google.com/forms/d/e/1FAIpQLSfmj1ORehGLPrhhICFu9p3wIN-uEbCUuSSZ5H_f5aqkxVq17Q/viewform)
 - [x] **Responses exported to CSV** — [Download CSV](./screenshots/StellarPay%20User%20Onboarding%20%26%20FeedbackStellarPay%20User%20OnbStellarPay%20User%20Onboarding%20%26%20Feedbackoarding%20%26%20Feedback.csv)
-- [x] **Excel/CSV linked in README** — See link above (23 verified responses, avg rating 4.96/5)
+- [x] **Excel/CSV linked in README** — See link above (23 responses, avg rating 4.96/5)
 - [x] **Improvement plan with commit links** — See "Future Improvements" section above
 
 ### ✅ Required README Items
 - [x] **Live demo link** — [https://stellar-pay-cross-border-remittance.vercel.app/](https://stellar-pay-cross-border-remittance.vercel.app/)
-- [x] **30+ user wallet addresses** — Table of 31 addresses with Stellar Expert links above
+- [x] **30+ user wallet addresses** — Table of 30 addresses with Stellar Expert links above
 - [x] **Metrics dashboard screenshot** — `./screenshots/admin-dashboard.png` (above)
 - [x] **Monitoring dashboard screenshot** — `./screenshots/sentry_monitoring.png` (above)
 - [x] **Security checklist link** — [SECURITY.md](./SECURITY.md)
@@ -541,7 +541,7 @@ This project fulfills all **Stellar Mastery Level 6** requirements:
 - [x] **README.md** — Comprehensive setup, features, and submission proofs
 - [x] **MULTISIG_GUIDE.md** — Multi-signature implementation guide
 - [x] **SECURITY.md** — Full security checklist and threat model
-- [x] **USER_FEEDBACK.md** — 23 real user responses with wallet addresses and ratings
+- [x] **USER_FEEDBACK.md** — 23 real user responses and rating data
 - [x] **BLACK_BELT_SUMMARY.md** — Submission summary and proof of implementation
 
 ### 📸 Submission Proofs
@@ -549,7 +549,7 @@ This project fulfills all **Stellar Mastery Level 6** requirements:
 - **GitHub Repo**: [https://github.com/KB2410/StellarPay-Cross-Border-Remittance-Hub](https://github.com/KB2410/StellarPay-Cross-Border-Remittance-Hub)
 - **Admin Dashboard Screenshot**: `./screenshots/admin-dashboard.png`
 - **Sentry Monitoring Screenshot**: `./screenshots/sentry_monitoring.png`
-- **User Feedback CSV**: `./screenshots/` folder
+- **User Feedback CSV**: `./screenshots/StellarPay User Onboarding & FeedbackStellarPay User OnbStellarPay User Onboarding & Feedbackoarding & Feedback.csv`
 - **Community Post**: [https://x.com/kartikb2410/status/2047700878447325695](https://x.com/kartikb2410/status/2047700878447325695)
 - **Advanced Feature TX**: [f492401733bf5c385711300dcc91c17b30ddfed185d5fd9ef4c27cdf03c9c106](https://stellar.expert/explorer/testnet/tx/f492401733bf5c385711300dcc91c17b30ddfed185d5fd9ef4c27cdf03c9c106)
 
