@@ -52,6 +52,7 @@ GOOGLE_FORM_TEMPLATE.md
 
 # Kiro spec files (development artifacts, not needed in production repo)
 .kiro/
+.kiro_tmp/
 
 # Screenshots and exported artifacts (track only submission proofs)
 screenshots/*
