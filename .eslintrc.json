@@ -1,0 +1,13 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "ignorePatterns": [
+    ".next/",
+    "out/",
+    "build/",
+    "coverage/",
+    "next-env.d.ts",
+    "scripts/",
+    "jest.config.js",
+    "next.config.js"
+  ]
+}
