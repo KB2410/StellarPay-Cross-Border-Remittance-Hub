@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import WalletConnect from '@/components/WalletConnect';
+import Logo from '@/components/Logo';
 
 export default function LandingPage() {
   return (
@@ -7,6 +8,14 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
         <div className="text-center max-w-4xl mx-auto">
+          {/* Logo mark above headline */}
+          <div className="flex justify-center mb-8">
+            <div className="relative">
+              <div className="absolute inset-0 blur-2xl bg-violet-500/30 rounded-full scale-150" />
+              <Logo size={72} className="relative drop-shadow-[0_0_24px_rgba(139,92,246,0.5)]" />
+            </div>
+          </div>
+
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 mb-8">
             <span className="w-2 h-2 rounded-full bg-emerald-400 pulse-glow" />
@@ -108,9 +117,12 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-white/[0.06] py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-gray-600">
-            © 2026 StellarPay. Built on Stellar Testnet.
-          </p>
+          <div className="flex items-center gap-2.5">
+            <Logo size={22} />
+            <p className="text-sm text-gray-600">
+              © 2026 StellarPay. Built on Stellar Testnet.
+            </p>
+          </div>
           <div className="flex items-center gap-4">
             <Link href="/admin" className="text-sm text-gray-500 hover:text-gray-300 transition-colors">
               Admin
