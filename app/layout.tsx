@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from '@vercel/analytics/next';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import Navbar from '@/components/Navbar';
 import './globals.css';
@@ -23,6 +24,7 @@ export default function RootLayout({
           <Navbar />
           <main className="flex-1">{children}</main>
           <SpeedInsights />
+          <Analytics />
         </ErrorBoundary>
       </body>
     </html>
