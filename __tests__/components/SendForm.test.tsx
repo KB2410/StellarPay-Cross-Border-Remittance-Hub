@@ -301,7 +301,7 @@ describe('SendForm UI Behavior', () => {
       const errorDiv = errorContainer.closest('div');
       
       expect(errorDiv).toHaveClass('bg-red-500/10');
-      expect(errorDiv).toHaveClass('border-red-500/30');
+      expect(errorDiv).toHaveClass('border-red-500/20');
       expect(errorDiv).toHaveClass('text-red-400');
     });
   });
