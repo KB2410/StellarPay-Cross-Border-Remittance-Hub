@@ -1,5 +1,3 @@
-'use client';
-
 import type { HorizonOperation } from '@/types';
 
 interface TransactionCardProps {
@@ -11,15 +9,51 @@ export default function TransactionCard({
   operation,
   userPublicKey,
 }: TransactionCardProps) {
-  const isSent = operation.from === userPublicKey || operation.source_account === userPublicKey;
-  const isPayment = operation.type === 'payment' || operation.type === 'create_account';
+  const isPayment = operation.type === 'payment';
+  const isCreateAccount = operation.type === 'create_account';
 
-  const counterparty = isSent ? operation.to : operation.from;
-  const truncatedKey = counterparty
-    ? `${counterparty.slice(0, 6)}...${counterparty.slice(-4)}`
-    : 'Unknown';
+  let title = 'Transaction';
+  let amountStr = '';
+  let counterparty = '';
+  let isOutgoing = false;
+  let Icon = null;
 
-  const date = new Date(operation.created_at).toLocaleDateString('en-US', {
+  if (isPayment) {
+    isOutgoing = operation.from === userPublicKey;
+    title = isOutgoing ? 'Sent Payment' : 'Received Payment';
+    const asset =
+      operation.asset_type === 'native' ? 'XLM' : operation.asset_code;
+    amountStr = `${isOutgoing ? '-' : '+'}${operation.amount} ${asset}`;
+    counterparty = isOutgoing ? (operation.to || '') : (operation.from || '');
+
+    Icon = isOutgoing ? (
+      <svg className="w-5 h-5 text-zinc-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+      </svg>
+    ) : (
+      <svg className="w-5 h-5 text-zinc-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+      </svg>
+    );
+  } else if (isCreateAccount) {
+    title = 'Account Created';
+    amountStr = `+${operation.starting_balance} XLM`;
+    counterparty = operation.account || '';
+    Icon = (
+      <svg className="w-5 h-5 text-zinc-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+      </svg>
+    );
+  } else {
+    title = operation.type.replace('_', ' ');
+    Icon = (
+      <svg className="w-5 h-5 text-zinc-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    );
+  }
+
+  const date = new Date(operation.created_at).toLocaleDateString(undefined, {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
@@ -27,73 +61,41 @@ export default function TransactionCard({
   });
 
   return (
-    <div className="group bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] rounded-xl p-4 transition-all duration-200">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {/* Direction icon */}
-          <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-              isSent
-                ? 'bg-red-500/10 text-red-400'
-                : 'bg-emerald-500/10 text-emerald-400'
-            }`}
-          >
-            <svg
-              className={`w-5 h-5 ${isSent ? 'rotate-45' : '-rotate-[135deg]'}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-              />
-            </svg>
-          </div>
-
-          <div>
-            <p className="text-white font-medium text-sm">
-              {isSent ? 'Sent' : 'Received'}
-              {isPayment && operation.asset_code
-                ? ` ${operation.asset_code}`
-                : operation.type === 'create_account'
-                ? ' (Account Created)'
-                : ` (${operation.type})`}
-            </p>
-            <p className="text-gray-500 text-xs mt-0.5">
-              {isSent ? 'To' : 'From'}: {truncatedKey}
-            </p>
-          </div>
+    <div className="structured-card rounded-xl p-4 flex items-center justify-between transition-colors hover:bg-zinc-800/50">
+      <div className="flex items-center gap-4">
+        <div
+          className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+            isPayment
+              ? isOutgoing
+                ? 'bg-zinc-800'
+                : 'bg-emerald-600'
+              : 'bg-blue-600'
+          }`}
+        >
+          {Icon}
         </div>
-
-        <div className="text-right">
-          {operation.amount && (
-            <p
-              className={`font-semibold text-sm ${
-                isSent ? 'text-red-400' : 'text-emerald-400'
-              }`}
-            >
-              {isSent ? '-' : '+'}
-              {parseFloat(operation.amount).toFixed(2)}{' '}
-              {operation.asset_code || 'XLM'}
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-zinc-50 capitalize truncate">
+            {title}
+          </p>
+          {counterparty && (
+            <p className="text-xs text-zinc-400 font-mono truncate mt-0.5">
+              {isOutgoing ? 'To: ' : 'From: '}
+              {counterparty.slice(0, 8)}...{counterparty.slice(-4)}
             </p>
           )}
-          <p className="text-gray-600 text-xs mt-0.5">{date}</p>
         </div>
       </div>
-
-      {/* TX hash on hover */}
-      <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <a
-          href={`https://stellar.expert/explorer/testnet/tx/${operation.transaction_hash}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-violet-400 hover:text-violet-300 font-mono"
+      
+      <div className="text-right shrink-0 ml-4">
+        <p
+          className={`text-sm font-bold ${
+            isOutgoing ? 'text-zinc-50' : 'text-emerald-500'
+          }`}
         >
-          {operation.transaction_hash.slice(0, 16)}... ↗
-        </a>
+          {amountStr}
+        </p>
+        <p className="text-xs text-zinc-500 mt-0.5">{date}</p>
       </div>
     </div>
   );

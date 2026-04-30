@@ -78,41 +78,41 @@ export default function VaultPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-8">
-        <Link href="/dashboard" className="hover:text-gray-300 transition-colors">
+      <div className="flex items-center gap-2 text-sm text-zinc-500 mb-8 font-medium">
+        <Link href="/dashboard" className="hover:text-zinc-300 transition-colors">
           Dashboard
         </Link>
         <span>→</span>
-        <span className="text-white">Multi-Sig Vault</span>
+        <span className="text-zinc-50">Multi-Sig Vault</span>
       </div>
 
       {/* Header */}
       <div className="text-center mb-10">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-600 to-orange-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/20">
-          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="w-16 h-16 rounded-2xl bg-zinc-800 flex items-center justify-center mx-auto mb-4 border border-zinc-700">
+          <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-zinc-50 mb-2">
           Create Multi-Sig Vault
         </h1>
-        <p className="text-gray-400 max-w-md mx-auto">
+        <p className="text-zinc-400 max-w-md mx-auto">
           Convert your account into a 2-of-2 multi-signature vault.
           Both signers must approve every payment.
         </p>
       </div>
 
       {/* Warning Box */}
-      <div className="glass-card rounded-2xl p-5 max-w-lg mx-auto mb-6 border-amber-500/20">
+      <div className="structured-card rounded-2xl p-5 max-w-lg mx-auto mb-6 border-amber-500/20 bg-amber-500/5">
         <div className="flex gap-3">
-          <svg className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
           </svg>
           <div>
-            <p className="text-amber-300 font-medium text-sm">
+            <p className="text-amber-500 font-medium text-sm">
               Irreversible Operation
             </p>
-            <p className="text-gray-400 text-xs mt-1">
+            <p className="text-zinc-400 text-xs mt-1">
               Once converted, all payments require both signatures. Make sure
               both parties have access to their keys.
             </p>
@@ -121,19 +121,19 @@ export default function VaultPage() {
       </div>
 
       {/* Form */}
-      <div className="glass-card rounded-2xl p-6 sm:p-8 max-w-lg mx-auto">
+      <div className="structured-card rounded-2xl p-6 sm:p-8 max-w-lg mx-auto">
         <form onSubmit={handleSetupVault} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-zinc-300 mb-2">
               Your Address
             </label>
-            <div className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.06] rounded-xl text-gray-500 font-mono text-xs break-all">
+            <div className="input-field w-full px-4 py-3 rounded-lg text-zinc-500 font-mono text-xs break-all bg-zinc-900/50">
               {publicKey}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-zinc-300 mb-2">
               Co-Signer Public Key
             </label>
             <input
@@ -141,19 +141,19 @@ export default function VaultPage() {
               value={coSignerKey}
               onChange={(e) => setCoSignerKey(e.target.value)}
               placeholder="G..."
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all font-mono text-sm"
+              className="input-field w-full px-4 py-3 rounded-lg placeholder:text-zinc-600 font-mono text-sm"
               required
             />
           </div>
           {/* Status */}
           {status && (
             <div
-              className={`p-4 rounded-xl text-sm ${
+              className={`p-4 rounded-lg text-sm font-medium ${
                 status.type === 'success'
-                  ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+                  ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
                   : status.type === 'error'
-                  ? 'bg-red-500/10 border border-red-500/30 text-red-400'
-                  : 'bg-blue-500/10 border border-blue-500/30 text-blue-400'
+                  ? 'bg-red-500/10 border border-red-500/20 text-red-400'
+                  : 'bg-blue-500/10 border border-blue-500/20 text-blue-400'
               }`}
             >
               {status.message}
@@ -163,7 +163,7 @@ export default function VaultPage() {
           <button
             type="submit"
             disabled={loading || !coSignerKey}
-            className="w-full py-4 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg shadow-amber-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="btn-primary w-full py-3.5 rounded-lg font-semibold text-base flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

@@ -6,8 +6,8 @@ interface LogoProps {
 }
 
 /**
- * StellarPay brand logo — an upward arrow with an orbital ring,
- * representing instant cross-border payments on the Stellar network.
+ * StellarPay brand logo — A minimalistic, geometric 'S' mark
+ * conveying speed, structure, and professional fintech reliability.
  */
 export default function Logo({ size = 32, className = '' }: LogoProps) {
   return (
@@ -21,42 +21,21 @@ export default function Logo({ size = 32, className = '' }: LogoProps) {
       aria-label="StellarPay logo"
       role="img"
     >
-      <defs>
-        <linearGradient id="sp-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#7c3aed" />
-          <stop offset="100%" stopColor="#4f46e5" />
-        </linearGradient>
-        <linearGradient id="sp-ring" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#a78bfa" />
-          <stop offset="100%" stopColor="#818cf8" />
-        </linearGradient>
-      </defs>
-
-      {/* Background circle */}
-      <circle cx="50" cy="50" r="48" fill="url(#sp-bg)" />
-
-      {/* Orbital ring — represents Stellar network */}
-      <ellipse
-        cx="50"
-        cy="50"
-        rx="38"
-        ry="13"
-        fill="none"
-        stroke="url(#sp-ring)"
-        strokeWidth="2.5"
-        opacity="0.55"
-        transform="rotate(-30 50 50)"
-      />
-
-      {/* Upward arrow — represents sending / remittance */}
+      <rect width="100" height="100" rx="20" fill="#2563EB" />
       <path
-        d="M28 52 L50 26 L72 52 L58 52 L58 74 L42 74 L42 52 Z"
-        fill="white"
-        opacity="0.95"
+        d="M65 35H45C39.4772 35 35 39.4772 35 45C35 50.5228 39.4772 55 45 55H55C60.5228 55 65 59.4772 65 65C65 70.5228 60.5228 75 55 75H35"
+        stroke="white"
+        strokeWidth="10"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
-
-      {/* Accent dot at arrow tip */}
-      <circle cx="50" cy="26" r="4" fill="#c4b5fd" />
+      <path
+        d="M60 25L65 35L60 45"
+        stroke="white"
+        strokeWidth="10"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

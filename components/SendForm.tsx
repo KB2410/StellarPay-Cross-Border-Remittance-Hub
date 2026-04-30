@@ -173,16 +173,16 @@ export default function SendForm({ publicKey }: SendFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-lg mx-auto">
+    <form onSubmit={handleSubmit} className="space-y-5 max-w-lg mx-auto">
       {/* Asset Selector */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
+        <label className="block text-sm font-semibold text-zinc-300 mb-2">
           Asset
         </label>
         <select
           value={selectedAsset}
           onChange={(e) => setSelectedAsset(e.target.value as 'XLM' | 'USDC')}
-          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all"
+          className="input-field w-full px-4 py-3 rounded-lg text-sm font-medium"
         >
           <option value="XLM">XLM (Stellar Lumens)</option>
           <option value="USDC">USDC (USD Coin)</option>
@@ -191,7 +191,7 @@ export default function SendForm({ publicKey }: SendFormProps) {
 
       {/* Recipient */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
+        <label className="block text-sm font-semibold text-zinc-300 mb-2">
           Recipient Address
         </label>
         <input
@@ -199,14 +199,14 @@ export default function SendForm({ publicKey }: SendFormProps) {
           value={recipient}
           onChange={(e) => setRecipient(e.target.value)}
           placeholder="G..."
-          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all font-mono text-sm"
+          className="input-field w-full px-4 py-3 rounded-lg font-mono text-sm placeholder:text-zinc-600"
           required
         />
       </div>
 
       {/* Amount */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
+        <label className="block text-sm font-semibold text-zinc-300 mb-2">
           Amount ({selectedAsset})
         </label>
         <input
@@ -216,15 +216,15 @@ export default function SendForm({ publicKey }: SendFormProps) {
           placeholder="0.00"
           step="0.000001"
           min="0.000001"
-          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all text-lg"
+          className="input-field w-full px-4 py-3 rounded-lg text-lg font-medium placeholder:text-zinc-600"
           required
         />
       </div>
 
       {/* Memo */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Memo <span className="text-gray-500">(optional)</span>
+        <label className="block text-sm font-semibold text-zinc-300 mb-2">
+          Memo <span className="text-zinc-500 font-normal">(optional)</span>
         </label>
         <input
           type="text"
@@ -232,17 +232,17 @@ export default function SendForm({ publicKey }: SendFormProps) {
           onChange={(e) => setMemo(e.target.value)}
           placeholder="Payment for..."
           maxLength={28}
-          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all"
+          className="input-field w-full px-4 py-3 rounded-lg text-sm placeholder:text-zinc-600"
         />
       </div>
 
       {/* Status */}
       {status && (
         <div
-          className={`p-4 rounded-xl text-sm ${
+          className={`p-4 rounded-lg text-sm font-medium ${
             status.type === 'success'
-              ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
-              : 'bg-red-500/10 border border-red-500/30 text-red-400'
+              ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+              : 'bg-red-500/10 border border-red-500/20 text-red-400'
           }`}
         >
           {status.message}
@@ -253,7 +253,7 @@ export default function SendForm({ publicKey }: SendFormProps) {
       <button
         type="submit"
         disabled={loading || !recipient || !amount}
-        className="w-full py-4 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="btn-primary w-full py-3.5 rounded-lg font-semibold text-base mt-2 flex items-center justify-center gap-2"
       >
         {loading ? (
           <>

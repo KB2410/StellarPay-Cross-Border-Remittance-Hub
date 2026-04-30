@@ -3,19 +3,19 @@
 @tailwind utilities;
 
 :root {
-  --color-background: #0a0b14;
-  --color-foreground: #e4e4e7;
-  --color-surface: #12131f;
-  --color-surface-hover: #1a1b2e;
-  --color-border: rgba(255, 255, 255, 0.06);
-  --color-border-active: rgba(139, 92, 246, 0.4);
-  --color-accent: #8b5cf6;
-  --color-accent-dark: #6d28d9;
+  --color-background: #09090b; /* zinc-950 */
+  --color-foreground: #fafafa; /* zinc-50 */
+  --color-surface: #18181b; /* zinc-900 */
+  --color-surface-hover: #27272a; /* zinc-800 */
+  --color-border: #27272a; /* zinc-800 */
+  --color-border-active: #3f3f46; /* zinc-700 */
+  --color-accent: #2563eb; /* blue-600 */
+  --color-accent-dark: #1d4ed8; /* blue-700 */
   --color-success: #10b981;
   --color-danger: #ef4444;
   --color-warning: #f59e0b;
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-geist-sans), Inter, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
 }
 
 * {
@@ -29,46 +29,32 @@ html {
 body {
   background: var(--color-background);
   color: var(--color-foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(139, 92, 246, 0.3);
-  border-radius: 3px;
+  background: #3f3f46;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 92, 246, 0.5);
+  background: #52525b;
 }
 
-/* Animated gradient background for hero */
-.hero-gradient {
-  background: radial-gradient(ellipse at 30% 10%, rgba(139, 92, 246, 0.15), transparent 50%),
-    radial-gradient(ellipse at 70% 80%, rgba(6, 182, 212, 0.1), transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(16, 185, 129, 0.05), transparent 70%);
-}
-
-/* Glass card effect */
-.glass-card {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-/* Pulse animation for live indicators */
-@keyframes pulse-glow {
-  0%, 100% { opacity: 1; box-shadow: 0 0 4px currentColor; }
-  50% { opacity: 0.5; box-shadow: 0 0 8px currentColor; }
-}
-.pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+/* Structured Card */
+.structured-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 /* Shimmer loading effect */
@@ -77,60 +63,73 @@ body {
   100% { background-position: 200% 0; }
 }
 .shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-surface-hover) 50%, var(--color-surface) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
+/* Input styles */
+.input-field {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  color: var(--color-foreground);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.input-field:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+/* Button primary */
+.btn-primary {
+  background-color: var(--color-accent);
+  color: #ffffff;
+  transition: background-color 0.15s ease-in-out;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-accent-dark);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Mobile-specific improvements */
 @media (max-width: 640px) {
-  /* Improve touch targets */
   button, a {
     min-height: 44px;
     min-width: 44px;
   }
-
-  /* Better spacing on mobile */
-  .glass-card {
+  .structured-card {
     padding: 1rem;
   }
-
-  /* Scrollable tables */
   .table-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-
-  /* Larger text for readability */
   body {
     font-size: 16px;
   }
-
-  /* Prevent zoom on input focus */
   input, select, textarea {
     font-size: 16px;
   }
-
-  /* Better modal sizing */
   .modal-content {
     max-height: 90vh;
     overflow-y: auto;
   }
 }
 
-/* Tablet improvements */
 @media (min-width: 641px) and (max-width: 1024px) {
-  .glass-card {
+  .structured-card {
     padding: 1.5rem;
   }
 }
 
-/* Utility classes */
 .scrollable-x {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
-
 .scrollable-x::-webkit-scrollbar {
   height: 4px;
 }

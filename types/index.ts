@@ -62,4 +62,6 @@ export interface HorizonOperation {
   asset_code?: string;
   from?: string;
   to?: string;
+  starting_balance?: string;
+  account?: string;
 }
