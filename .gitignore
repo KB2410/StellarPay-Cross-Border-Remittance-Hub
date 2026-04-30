@@ -59,7 +59,7 @@ screenshots/*
 !screenshots/.gitkeep
 !screenshots/admin-dashboard.png
 !screenshots/sentry_monitoring.png
-!screenshots/StellarPay User Onboarding & FeedbackStellarPay User OnbStellarPay User Onboarding & Feedbackoarding & Feedback.csv
+!screenshots/user_feedback_responses.csv
 
 # AI/IDE tool directories
 .agents/

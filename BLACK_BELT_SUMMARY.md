@@ -12,7 +12,7 @@
 
 - **30 verified active users**: listed in the README with Stellar Expert links
 - **23 feedback responses**: collected through the Google Form and exported to CSV
-- **61 meaningful commits**: current git history count
+- **73 meaningful commits**: current git history count
 - **Metrics dashboard live**: `/admin` dashboard plus screenshot in `screenshots/admin-dashboard.png`
 - **Monitoring active**: Sentry screenshot in `screenshots/sentry_monitoring.png`
 - **Security checklist completed**: `SECURITY.md`
@@ -38,7 +38,7 @@ Implementation coverage:
 
 - **Verified user wallets**: 30 public keys listed in `README.md`
 - **Feedback form**: Google Form link in `README.md`
-- **CSV export**: `screenshots/StellarPay User Onboarding & FeedbackStellarPay User OnbStellarPay User Onboarding & Feedbackoarding & Feedback.csv`
+- **CSV export**: `screenshots/user_feedback_responses.csv`
 - **Detailed feedback notes**: `USER_FEEDBACK.md`
 
 ## Documentation Bundle

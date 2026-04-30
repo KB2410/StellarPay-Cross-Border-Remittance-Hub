@@ -93,7 +93,7 @@ StellarPay is a production-ready remittance web application built on the Stellar
 **30 Verified Active Users** — 23 Google Form responses collected from real testers. Average rating: **4.96 / 5**.
 
 - **Feedback Form**: [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSfmj1ORehGLPrhhICFu9p3wIN-uEbCUuSSZ5H_f5aqkxVq17Q/viewform)
-- **Responses Export**: [Download CSV](./screenshots/StellarPay%20User%20Onboarding%20%26%20FeedbackStellarPay%20User%20OnbStellarPay%20User%20Onboarding%20%26%20Feedbackoarding%20%26%20Feedback.csv) — 23 responses exported for analysis
+- **Responses Export**: [Download CSV](./screenshots/user_feedback_responses.csv) — 23 responses exported for analysis
 - **User Testimonials**: See [USER_FEEDBACK.md](./USER_FEEDBACK.md) for detailed responses, wallet data, and ratings
 
 ### 🚀 Future Improvements (Based on User Feedback)
@@ -251,7 +251,7 @@ Based on collected user feedback and platform analytics, here are the improvemen
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | Next.js 16 (App Router) + Tailwind CSS |
+| Frontend | Next.js 14 (App Router) + Tailwind CSS |
 | Blockchain | Stellar SDK (`@stellar/stellar-sdk`) + Horizon Testnet |
 | Wallet | Freighter (`@stellar/freighter-api`) |
 | Database | Supabase (PostgreSQL + RLS) |
@@ -441,16 +441,6 @@ Full security documentation: [SECURITY.md](./SECURITY.md)
 
 ---
 
-- All Stellar addresses validated with `StrKey.decodeEd25519PublicKey()`
-- Payment amounts validated: positive, max 6 decimals
-- Freighter signs auth challenges and transactions; secret keys never enter the app or API
-- Admin access is protected by a password login and secure server-side sessions
-- Sensitive Supabase access is server-side only through authenticated API routes
-- Security audit events are recorded in `security_events`
-- Rate limiting is enabled on auth, multisig, profile, and transaction routes
-- Security headers: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, `Referrer-Policy`, `Permissions-Policy`
-- Supabase Row Level Security enabled on all tables
-- Sentry error monitoring on all API routes
 
 ## 📊 Database Schema
 
@@ -519,11 +509,11 @@ This project fulfills all **Stellar Mastery Level 6** requirements:
 - [x] **Full documentation** — README, MULTISIG_GUIDE, SECURITY, USER_FEEDBACK, BLACK_BELT_SUMMARY
 - [x] **1 community contribution** — [Twitter/X Post](https://x.com/kartikb2410/status/2047700878447325695)
 - [x] **1 advanced feature** — Multi-Signature Logic (native Stellar SDK, 2-of-2 vault)
-- [x] **Minimum 15+ meaningful commits** — **61 commits** total
+- [x] **Minimum 30+ meaningful commits** — **73 commits** total
 
 ### ✅ User Onboarding
 - [x] **Google Form created** — [View Form](https://docs.google.com/forms/d/e/1FAIpQLSfmj1ORehGLPrhhICFu9p3wIN-uEbCUuSSZ5H_f5aqkxVq17Q/viewform)
-- [x] **Responses exported to CSV** — [Download CSV](./screenshots/StellarPay%20User%20Onboarding%20%26%20FeedbackStellarPay%20User%20OnbStellarPay%20User%20Onboarding%20%26%20Feedbackoarding%20%26%20Feedback.csv)
+- [x] **Responses exported to CSV** — [Download CSV](./screenshots/user_feedback_responses.csv)
 - [x] **Excel/CSV linked in README** — See link above (23 responses, avg rating 4.96/5)
 - [x] **Improvement plan with commit links** — See "Future Improvements" section above
 
@@ -549,7 +539,7 @@ This project fulfills all **Stellar Mastery Level 6** requirements:
 - **GitHub Repo**: [https://github.com/KB2410/StellarPay-Cross-Border-Remittance-Hub](https://github.com/KB2410/StellarPay-Cross-Border-Remittance-Hub)
 - **Admin Dashboard Screenshot**: `./screenshots/admin-dashboard.png`
 - **Sentry Monitoring Screenshot**: `./screenshots/sentry_monitoring.png`
-- **User Feedback CSV**: `./screenshots/StellarPay User Onboarding & FeedbackStellarPay User OnbStellarPay User Onboarding & Feedbackoarding & Feedback.csv`
+- **User Feedback CSV**: `./screenshots/user_feedback_responses.csv`
 - **Community Post**: [https://x.com/kartikb2410/status/2047700878447325695](https://x.com/kartikb2410/status/2047700878447325695)
 - **Advanced Feature TX**: [f492401733bf5c385711300dcc91c17b30ddfed185d5fd9ef4c27cdf03c9c106](https://stellar.expert/explorer/testnet/tx/f492401733bf5c385711300dcc91c17b30ddfed185d5fd9ef4c27cdf03c9c106)
 

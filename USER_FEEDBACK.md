@@ -7,7 +7,7 @@ This document contains feedback from 23 real users who tested StellarPay on the 
 The verified-active-user count used in the submission README is based on the 30 wallet addresses listed there. The Google Form responses are a subset of those testers, and one response is retained here for audit completeness even though the wallet field was entered incorrectly.
 
 **Feedback Collection**: [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSfmj1ORehGLPrhhICFu9p3wIN-uEbCUuSSZ5H_f5aqkxVq17Q/viewform)
-**CSV Export**: [Download Responses](./screenshots/StellarPay%20User%20Onboarding%20%26%20FeedbackStellarPay%20User%20OnbStellarPay%20User%20Onboarding%20%26%20Feedbackoarding%20%26%20Feedback.csv)
+**CSV Export**: [Download Responses](./screenshots/user_feedback_responses.csv)
 **Collection Period**: April 7, 2026 – April 24, 2026
 **Total Responses**: 23
 
