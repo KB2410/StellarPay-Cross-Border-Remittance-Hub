@@ -4,48 +4,57 @@ import Logo from '@/components/Logo';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-zinc-950">
+    <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent/20 rounded-full blur-[128px] mix-blend-screen animate-float pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-accent-cyan/10 rounded-full blur-[128px] mix-blend-screen animate-float pointer-events-none" style={{ animationDelay: '2s' }} />
+
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-32">
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-32">
         <div className="text-center max-w-4xl mx-auto">
           {/* Logo mark above headline */}
-          <div className="flex justify-center mb-8">
-            <Logo size={64} />
+          <div className="flex justify-center mb-10 animate-float">
+            <div className="relative">
+              <div className="absolute inset-0 bg-accent blur-xl opacity-50 rounded-full" />
+              <Logo size={80} />
+            </div>
           </div>
 
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 mb-8">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-sm text-zinc-300 font-medium">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
+            <span className="text-sm text-gray-300 font-medium tracking-wide">
               Live on Stellar Testnet
             </span>
           </div>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-zinc-50">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-white font-display">
             Institutional-Grade <br />
-            <span className="text-blue-500">Cross-Border Payments</span>
+            <span className="text-gradient">Cross-Border Payments</span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+          <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
             Settle USDC remittances globally on the Stellar network in seconds. 
             Secure your assets with multi-signature vaults. No intermediaries, no delays.
           </p>
 
           {/* Wallet Connect */}
-          <WalletConnect />
+          <div className="flex justify-center">
+            <WalletConnect />
+          </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-8 max-w-lg mx-auto mt-24 border-t border-zinc-800 pt-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-24">
             {[
               { value: '< 5s', label: 'Global Settlement' },
               { value: '$0.001', label: 'Average Network Fee' },
               { value: '2-of-2', label: 'Multi-Sig Custody' },
             ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-2xl font-bold text-zinc-50">
+              <div key={stat.label} className="glass rounded-2xl p-6 text-center transform transition-all duration-300 hover:scale-105 hover:bg-white/10 hover:border-accent/50">
+                <p className="text-3xl font-bold text-white font-display mb-1">
                   {stat.value}
                 </p>
-                <p className="text-sm text-zinc-500 mt-1 font-medium uppercase tracking-wider">{stat.label}</p>
+                <p className="text-xs text-accent-cyan font-medium uppercase tracking-widest">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -53,11 +62,11 @@ export default function LandingPage() {
       </section>
 
       {/* Features Grid */}
-      <section className="bg-zinc-900/50 border-y border-zinc-800">
+      <section className="relative z-10 border-y border-white/5 bg-black/20 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-zinc-50">Platform Features</h2>
-            <p className="text-zinc-400 mt-4">Built for scale, security, and speed.</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white font-display">Platform Features</h2>
+            <p className="text-gray-400 mt-4 text-lg">Built for scale, security, and speed.</p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
@@ -92,15 +101,16 @@ export default function LandingPage() {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className="structured-card rounded-xl p-8 transition-shadow hover:shadow-lg hover:border-zinc-700"
+                className="structured-card p-8 group relative overflow-hidden"
               >
-                <div className="w-12 h-12 rounded-lg bg-zinc-800 text-blue-500 flex items-center justify-center mb-6">
+                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-accent/10 rounded-full blur-xl group-hover:bg-accent/20 transition-colors duration-500" />
+                <div className="relative z-10 w-12 h-12 rounded-xl bg-gradient-to-br from-accent/20 to-accent-cyan/20 border border-accent/30 text-accent-cyan flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(6,182,212,0.15)] group-hover:scale-110 transition-transform duration-300">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-zinc-50 mb-3">
+                <h3 className="relative z-10 text-xl font-semibold text-white mb-3 font-display">
                   {feature.title}
                 </h3>
-                <p className="text-zinc-400 text-sm leading-relaxed">
+                <p className="relative z-10 text-gray-400 text-sm leading-relaxed group-hover:text-gray-300 transition-colors">
                   {feature.desc}
                 </p>
               </div>
@@ -110,23 +120,23 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 bg-zinc-950">
+      <footer className="relative z-10 py-12 border-t border-white/5 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Logo size={24} />
-            <p className="text-sm text-zinc-500 font-medium">
+            <p className="text-sm text-gray-500 font-medium">
               © 2026 StellarPay.
             </p>
           </div>
           <div className="flex items-center gap-6">
-            <Link href="/admin" className="text-sm font-medium text-zinc-500 hover:text-zinc-300 transition-colors">
+            <Link href="/admin" className="text-sm font-medium text-gray-500 hover:text-white transition-colors">
               Admin Portal
             </Link>
             <a
               href="https://stellar.org"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium text-zinc-500 hover:text-zinc-300 transition-colors"
+              className="text-sm font-medium text-gray-500 hover:text-white transition-colors"
             >
               Stellar Network
             </a>

@@ -27,11 +27,11 @@ export default function TransactionCard({
     counterparty = isOutgoing ? (operation.to || '') : (operation.from || '');
 
     Icon = isOutgoing ? (
-      <svg className="w-5 h-5 text-zinc-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
       </svg>
     ) : (
-      <svg className="w-5 h-5 text-zinc-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
       </svg>
     );
@@ -40,14 +40,14 @@ export default function TransactionCard({
     amountStr = `+${operation.starting_balance} XLM`;
     counterparty = operation.account || '';
     Icon = (
-      <svg className="w-5 h-5 text-zinc-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
       </svg>
     );
   } else {
     title = operation.type.replace('_', ' ');
     Icon = (
-      <svg className="w-5 h-5 text-zinc-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
       </svg>
     );
@@ -61,25 +61,25 @@ export default function TransactionCard({
   });
 
   return (
-    <div className="structured-card rounded-xl p-4 flex items-center justify-between transition-colors hover:bg-zinc-800/50">
+    <div className="glass rounded-xl p-4 flex items-center justify-between transition-all duration-300 hover:bg-white/10 hover:shadow-lg group">
       <div className="flex items-center gap-4">
         <div
-          className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+          className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border transition-transform duration-300 group-hover:scale-110 ${
             isPayment
               ? isOutgoing
-                ? 'bg-zinc-800'
-                : 'bg-emerald-600'
-              : 'bg-blue-600'
+                ? 'bg-white/5 border-white/10'
+                : 'bg-emerald-500/10 border-emerald-500/20'
+              : 'bg-accent/10 border-accent/20'
           }`}
         >
           {Icon}
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-zinc-50 capitalize truncate">
+          <p className="text-sm font-semibold text-white capitalize truncate font-display tracking-wide">
             {title}
           </p>
           {counterparty && (
-            <p className="text-xs text-zinc-400 font-mono truncate mt-0.5">
+            <p className="text-xs text-gray-400 font-mono truncate mt-1">
               {isOutgoing ? 'To: ' : 'From: '}
               {counterparty.slice(0, 8)}...{counterparty.slice(-4)}
             </p>
@@ -89,13 +89,13 @@ export default function TransactionCard({
       
       <div className="text-right shrink-0 ml-4">
         <p
-          className={`text-sm font-bold ${
-            isOutgoing ? 'text-zinc-50' : 'text-emerald-500'
+          className={`text-sm font-bold font-display tracking-wide ${
+            isOutgoing ? 'text-white' : 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]'
           }`}
         >
           {amountStr}
         </p>
-        <p className="text-xs text-zinc-500 mt-0.5">{date}</p>
+        <p className="text-xs text-gray-500 mt-1">{date}</p>
       </div>
     </div>
   );
