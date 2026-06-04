@@ -7,7 +7,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-**🌐 Live Demo**: [https://stellar-pay-cross-border-remittance.vercel.app/](https://stellar-pay-cross-border-remittance.vercel.app/)
+**🌐 Live Vercel Demo**: [https://stellar-pay-cross-border-remittance.vercel.app/](https://stellar-pay-cross-border-remittance.vercel.app/)
 
 **📋 Black Belt Submission**: Stellar Mastery Level 6 — Production Remittance Platform
 
