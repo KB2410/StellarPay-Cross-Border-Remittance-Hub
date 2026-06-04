@@ -4,9 +4,48 @@ import { useEffect, useState, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { Activity, BarChart3, LockKeyhole, LogOut, ShieldCheck, Users } from 'lucide-react';
+import { Activity, AlertCircle, BarChart3, LockKeyhole, LogOut, ShieldCheck, Users } from 'lucide-react';
 import type { Metrics } from '@/types';
 import { isAdmin, authenticateAdmin, logoutAdmin } from '@/lib/admin';
+
+type HealthState = {
+  status: string;
+  checks: Record<string, string>;
+};
+
+type ApiResult<T> = {
+  ok: boolean;
+  status: number;
+  data: T;
+};
+
+const EMPTY_METRICS: Metrics = {
+  totalUsers: 0,
+  dau: 0,
+  totalTransactions: 0,
+  totalVolume: 0,
+};
+
+async function fetchJsonWithTimeout<T>(url: string, timeoutMs = 8000): Promise<ApiResult<T>> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+    const data = (await response.json().catch(() => ({}))) as T;
+
+    return {
+      ok: response.ok,
+      status: response.status,
+      data,
+    };
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
 
 const MetricsChart = dynamic(() => import('@/components/MetricsChart'), {
   ssr: false,
@@ -22,61 +61,78 @@ export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
-  const [health, setHealth] = useState<{
-    status: string;
-    checks: Record<string, string>;
-  } | null>(null);
+  const [health, setHealth] = useState<HealthState | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(false);
+  const [dataMessage, setDataMessage] = useState('');
   const [lastUpdated, setLastUpdated] = useState<string>('');
 
   const fetchData = useCallback(async () => {
-    if (!isAuthorized) return;
+    setDataLoading(true);
+    setDataMessage('');
+
     try {
       const [metricsRes, healthRes] = await Promise.allSettled([
-        fetch('/api/metrics'),
-        fetch('/api/health'),
+        fetchJsonWithTimeout<Metrics & { error?: string }>('/api/metrics'),
+        fetchJsonWithTimeout<HealthState>('/api/health'),
       ]);
 
       if (metricsRes.status === 'fulfilled') {
-        const metricsData = await metricsRes.value.json();
+        const metricsData = metricsRes.value.data;
         setMetrics({
           totalUsers: metricsData.totalUsers ?? 0,
           dau: metricsData.dau ?? 0,
           totalTransactions: metricsData.totalTransactions ?? 0,
           totalVolume: metricsData.totalVolume ?? 0,
         });
+
+        if (!metricsRes.value.ok) {
+          setDataMessage(
+            metricsData.error ||
+              `Metrics API returned HTTP ${metricsRes.value.status}; showing safe zero values.`
+          );
+        }
       } else {
-        setMetrics({ totalUsers: 0, dau: 0, totalTransactions: 0, totalVolume: 0 });
+        setMetrics(EMPTY_METRICS);
+        setDataMessage('Metrics API did not respond in time; showing safe zero values.');
       }
 
       if (healthRes.status === 'fulfilled') {
-        const healthData = await healthRes.value.json();
-        setHealth(healthData);
+        const healthData = healthRes.value.data;
+        setHealth({
+          status: healthData.status || 'degraded',
+          checks: healthData.checks || { horizon: 'unknown', supabase: 'unknown' },
+        });
       } else {
         setHealth({ status: 'degraded', checks: { horizon: 'unknown', supabase: 'unknown' } });
       }
 
       setLastUpdated(new Date().toLocaleTimeString());
     } catch {
-      setMetrics({ totalUsers: 0, dau: 0, totalTransactions: 0, totalVolume: 0 });
-      setHealth({ status: 'degraded', checks: {} });
+      setMetrics(EMPTY_METRICS);
+      setHealth({ status: 'degraded', checks: { horizon: 'unknown', supabase: 'unknown' } });
+      setDataMessage('Admin data could not be loaded; showing safe zero values.');
     } finally {
-      setLoading(false);
+      setDataLoading(false);
     }
-  }, [isAuthorized]);
+  }, []);
 
   useEffect(() => {
     async function checkAuth() {
       const admin = await isAdmin();
       setIsAuthorized(admin);
+
+      if (admin) {
+        await fetchData();
+      }
+
       setLoading(false);
     }
     checkAuth();
-  }, []);
+  }, [fetchData]);
 
   useEffect(() => {
     if (isAuthorized) {
-      fetchData();
       const interval = setInterval(fetchData, 30000);
       return () => clearInterval(interval);
     }
@@ -91,7 +147,7 @@ export default function AdminPage() {
       if (result.success) {
         setIsAuthorized(true);
         setPassword('');
-        fetchData();
+        await fetchData();
       } else {
         setAuthError(result.error || 'Invalid password');
       }
@@ -105,18 +161,30 @@ export default function AdminPage() {
     setIsAuthorized(false);
     setMetrics(null);
     setHealth(null);
+    setDataLoading(false);
+    setDataMessage('');
     setLastUpdated('');
     router.replace('/admin');
   };
 
-  const statCards = metrics
-    ? [
-        { label: 'Total Users', value: metrics.totalUsers, icon: Users },
-        { label: 'Daily Active', value: metrics.dau, icon: Activity },
-        { label: 'Transactions', value: metrics.totalTransactions, icon: BarChart3 },
-        { label: 'Total Volume', value: `$${(metrics.totalVolume || 0).toFixed(2)}`, icon: ShieldCheck },
-      ]
-    : [];
+  const visibleMetrics = metrics ?? EMPTY_METRICS;
+  const statCards = [
+    { label: 'Total Users', value: visibleMetrics.totalUsers, icon: Users },
+    { label: 'Daily Active', value: visibleMetrics.dau, icon: Activity },
+    { label: 'Transactions', value: visibleMetrics.totalTransactions, icon: BarChart3 },
+    { label: 'Total Volume', value: `$${(visibleMetrics.totalVolume || 0).toFixed(2)}`, icon: ShieldCheck },
+  ];
+  const isCheckingSystem = !health && (loading || dataLoading);
+  const systemStatusLabel = isCheckingSystem
+    ? 'Checking'
+    : health?.status === 'healthy'
+    ? 'Systems normal'
+    : 'Degraded';
+  const systemDotClass = isCheckingSystem
+    ? 'bg-blue-500'
+    : health?.status === 'healthy'
+    ? 'bg-emerald-500'
+    : 'bg-amber-500';
 
   if (!isAuthorized) {
     return (
@@ -188,12 +256,8 @@ export default function AdminPage() {
             </span>
           )}
           <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm">
-            <span
-              className={`h-2 w-2 rounded-full ${
-                health?.status === 'healthy' ? 'bg-emerald-500' : 'bg-amber-500'
-              }`}
-            />
-            {health?.status === 'healthy' ? 'Systems normal' : 'Degraded'}
+            <span className={`h-2 w-2 rounded-full ${systemDotClass}`} />
+            {systemStatusLabel}
           </div>
           <button
             onClick={handleLogout}
@@ -204,6 +268,13 @@ export default function AdminPage() {
           </button>
         </div>
       </div>
+
+      {dataMessage && (
+        <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          <span>{dataMessage}</span>
+        </div>
+      )}
 
       {health && (
         <section className="structured-card mb-6 p-5">
@@ -245,7 +316,7 @@ export default function AdminPage() {
         </section>
       )}
 
-      {loading ? (
+      {loading || (dataLoading && !metrics) ? (
         <div className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[...Array(4)].map((_, i) => (
@@ -272,11 +343,18 @@ export default function AdminPage() {
           </div>
 
           <section className="structured-card p-6">
-            <div className="mb-6">
-              <p className="section-label">Metrics</p>
-              <h2 className="mt-1 text-lg font-bold text-slate-950">Platform overview</h2>
+            <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+              <div>
+                <p className="section-label">Metrics</p>
+                <h2 className="mt-1 text-lg font-bold text-slate-950">Platform overview</h2>
+              </div>
+              {dataLoading && (
+                <span className="inline-flex w-fit items-center rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500">
+                  Refreshing metrics
+                </span>
+              )}
             </div>
-            {metrics && <MetricsChart metrics={metrics} />}
+            <MetricsChart metrics={visibleMetrics} />
           </section>
         </>
       )}

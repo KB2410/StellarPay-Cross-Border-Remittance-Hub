@@ -34,6 +34,33 @@ export default function MetricsChart({ metrics }: MetricsChartProps) {
       value: Math.round(metrics.totalVolume * 100) / 100,
     },
   ];
+  const hasActivity = data.some((item) => item.value > 0);
+
+  if (!hasActivity) {
+    return (
+      <div className="flex min-h-80 w-full items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
+        <div className="w-full max-w-2xl">
+          <p className="section-label">Awaiting live rows</p>
+          <h3 className="mt-2 text-xl font-bold text-slate-950 font-display">
+            No platform activity has been recorded yet.
+          </h3>
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-slate-500">
+            The current admin metrics response contains zero users, zero active sessions, and zero transactions.
+          </p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-4">
+            {data.map((item) => (
+              <div key={item.name} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{item.name}</p>
+                <p className="mt-2 text-2xl font-bold text-slate-950 font-display">
+                  {item.name === 'Volume ($)' ? `$${item.value.toFixed(2)}` : item.value.toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-80 w-full">
