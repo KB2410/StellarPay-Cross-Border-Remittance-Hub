@@ -223,7 +223,21 @@ Based on collected user feedback and platform analytics, here are the improvemen
 ### 🎯 Platform Metrics (Live)
 
 ![Admin Dashboard](./screenshots/admin-dashboard.png)
-*Real-time metrics showing active users, transaction volume, and daily activity*
+*Real-time metrics from the live Vercel admin dashboard.*
+
+**Latest verified snapshot**: June 4, 2026 at 15:12:05 IST
+
+| Metric | Live Value |
+|---|---:|
+| Total Users | 31 |
+| Daily Active Users | 1 |
+| Transactions | 6 |
+| Total Volume | $870.00 |
+
+| Service Check | Status |
+|---|---|
+| Horizon | Connected |
+| Supabase | Connected |
 
 ### 📡 Production Monitoring (Sentry)
 
