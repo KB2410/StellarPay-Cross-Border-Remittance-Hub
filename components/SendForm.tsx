@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ArrowRight, Loader2, Send, ShieldCheck } from 'lucide-react';
 import {
   isValidAddress,
   buildPaymentTransaction,
@@ -45,30 +46,25 @@ export default function SendForm({ publicKey }: SendFormProps) {
         throw new Error('Please reconnect your wallet to continue');
       }
 
-      // Sanitize inputs
       const sanitizedRecipient = sanitizeInput(recipient);
       const sanitizedAmount = sanitizeInput(amount);
       const sanitizedMemo = sanitizeInput(memo);
 
-      // Validate recipient
       const recipientValidation = validatePublicKey(sanitizedRecipient);
       if (!recipientValidation.valid) {
         throw new Error(recipientValidation.error);
       }
 
-      // Validate amount
       const amountValidation = validateAmountForAsset(sanitizedAmount, selectedAsset);
       if (!amountValidation.valid) {
         throw new Error(amountValidation.error);
       }
 
-      // Validate memo
       const memoValidation = validateMemo(sanitizedMemo);
       if (!memoValidation.valid) {
         throw new Error(memoValidation.error);
       }
 
-      // Additional checks
       if (!isValidAddress(sanitizedRecipient)) {
         throw new Error('Invalid Stellar address');
       }
@@ -76,7 +72,6 @@ export default function SendForm({ publicKey }: SendFormProps) {
         throw new Error('Cannot send to yourself');
       }
 
-      // Build the payment XDR
       const xdr = selectedAsset === 'XLM'
         ? await buildNativePaymentTransaction(
             publicKey,
@@ -91,7 +86,6 @@ export default function SendForm({ publicKey }: SendFormProps) {
             sanitizedMemo || undefined
           );
 
-      // Check if account is a multisig vault
       const isVault = await isMultisigAccount(publicKey);
 
       if (isVault) {
@@ -102,7 +96,6 @@ export default function SendForm({ publicKey }: SendFormProps) {
           networkPassphrase: network,
         });
 
-        // Send to multisig queue instead of submitting directly
         const res = await fetch('/api/multisig', {
           method: 'POST',
           credentials: 'same-origin',
@@ -127,10 +120,9 @@ export default function SendForm({ publicKey }: SendFormProps) {
           throw new Error(data.error || 'Failed to create pending transaction');
         }
       } else {
-        // Standard account — sign with Freighter
         const freighterApi = await import('@stellar/freighter-api');
         const { network } = await import('@/lib/stellar');
-        
+
         const signedXdr = await freighterApi.signTransaction(xdr, {
           networkPassphrase: network,
         });
@@ -157,7 +149,7 @@ export default function SendForm({ publicKey }: SendFormProps) {
               method: 'POST',
             });
           } catch {
-            // Non-blocking
+            // Transaction submission already succeeded; logging is best effort.
           }
           setTimeout(() => router.push('/dashboard'), 2000);
         } else {
@@ -173,105 +165,135 @@ export default function SendForm({ publicKey }: SendFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-w-lg mx-auto">
-      {/* Asset Selector */}
-      <div>
-        <label className="block text-sm font-semibold text-zinc-300 mb-2">
-          Asset
-        </label>
-        <select
-          value={selectedAsset}
-          onChange={(e) => setSelectedAsset(e.target.value as 'XLM' | 'USDC')}
-          className="input-field w-full px-4 py-3 rounded-lg text-sm font-medium"
-        >
-          <option value="XLM">XLM (Stellar Lumens)</option>
-          <option value="USDC">USDC (USD Coin)</option>
-        </select>
-      </div>
-
-      {/* Recipient */}
-      <div>
-        <label className="block text-sm font-semibold text-zinc-300 mb-2">
-          Recipient Address
-        </label>
-        <input
-          type="text"
-          value={recipient}
-          onChange={(e) => setRecipient(e.target.value)}
-          placeholder="G..."
-          className="input-field w-full px-4 py-3 rounded-lg font-mono text-sm placeholder:text-zinc-600"
-          required
-        />
-      </div>
-
-      {/* Amount */}
-      <div>
-        <label className="block text-sm font-semibold text-zinc-300 mb-2">
-          Amount ({selectedAsset})
-        </label>
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="0.00"
-          step="0.000001"
-          min="0.000001"
-          className="input-field w-full px-4 py-3 rounded-lg text-lg font-medium placeholder:text-zinc-600"
-          required
-        />
-      </div>
-
-      {/* Memo */}
-      <div>
-        <label className="block text-sm font-semibold text-zinc-300 mb-2">
-          Memo <span className="text-zinc-500 font-normal">(optional)</span>
-        </label>
-        <input
-          type="text"
-          value={memo}
-          onChange={(e) => setMemo(e.target.value)}
-          placeholder="Payment for..."
-          maxLength={28}
-          className="input-field w-full px-4 py-3 rounded-lg text-sm placeholder:text-zinc-600"
-        />
-      </div>
-
-      {/* Status */}
-      {status && (
-        <div
-          className={`p-4 rounded-lg text-sm font-medium ${
-            status.type === 'success'
-              ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
-              : 'bg-red-500/10 border border-red-500/20 text-red-400'
-          }`}
-        >
-          {status.message}
+    <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1fr_0.82fr]">
+      <div className="space-y-5">
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">
+            Asset
+          </label>
+          <select
+            value={selectedAsset}
+            onChange={(e) => setSelectedAsset(e.target.value as 'XLM' | 'USDC')}
+            className="input-field h-12 w-full rounded-lg px-4 text-sm font-medium"
+          >
+            <option value="XLM">XLM (Stellar Lumens)</option>
+            <option value="USDC">USDC (USD Coin)</option>
+          </select>
         </div>
-      )}
 
-      {/* Submit */}
-      <button
-        type="submit"
-        disabled={loading || !recipient || !amount}
-        className="btn-primary w-full py-3.5 rounded-lg font-semibold text-base mt-2 flex items-center justify-center gap-2"
-      >
-        {loading ? (
-          <>
-            <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            Processing...
-          </>
-        ) : (
-          <>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-            </svg>
-            Send {selectedAsset}
-          </>
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">
+            Recipient Address
+          </label>
+          <input
+            type="text"
+            value={recipient}
+            onChange={(e) => setRecipient(e.target.value)}
+            placeholder="G..."
+            className="input-field h-12 w-full rounded-lg px-4 font-mono text-sm"
+            required
+          />
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-[0.8fr_1.2fr]">
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">
+              Amount ({selectedAsset})
+            </label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0.00"
+              step="0.000001"
+              min="0.000001"
+              className="input-field h-12 w-full rounded-lg px-4 text-base font-semibold"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">
+              Memo <span className="font-normal text-slate-400">(optional)</span>
+            </label>
+            <input
+              type="text"
+              value={memo}
+              onChange={(e) => setMemo(e.target.value)}
+              placeholder="Payment for..."
+              maxLength={28}
+              className="input-field h-12 w-full rounded-lg px-4 text-sm"
+            />
+          </div>
+        </div>
+
+        {status && (
+          <div
+            className={`rounded-lg p-4 text-sm font-medium ${
+              status.type === 'success'
+                ? 'border border-emerald-200 bg-emerald-50 text-emerald-700'
+                : 'bg-red-500/10 border border-red-500/20 text-red-400'
+            }`}
+          >
+            {status.message}
+          </div>
         )}
-      </button>
+
+        <button
+          type="submit"
+          disabled={loading || !recipient || !amount}
+          className="btn-primary flex h-12 w-full items-center justify-center gap-2 rounded-lg px-5 text-sm"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              Processing...
+            </>
+          ) : (
+            <>
+              <Send className="h-4 w-4" aria-hidden="true" />
+              Send {selectedAsset}
+            </>
+          )}
+        </button>
+      </div>
+
+      <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
+        <p className="section-label">Transfer Summary</p>
+        <dl className="mt-5 space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-sm text-slate-500">Asset</dt>
+            <dd className="text-sm font-semibold text-slate-950">{selectedAsset}</dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-sm text-slate-500">Amount</dt>
+            <dd className="font-mono text-sm font-semibold text-slate-950">
+              {amount || '0.00'}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm text-slate-500">Recipient</dt>
+            <dd className="mt-1 break-all font-mono text-xs font-semibold text-slate-700">
+              {recipient || 'No recipient entered'}
+            </dd>
+          </div>
+        </dl>
+
+        <div className="mt-6 rounded-lg border border-emerald-200 bg-white p-4">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-accent" aria-hidden="true" />
+            <p className="text-sm font-semibold text-slate-950">Policy aware</p>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Standard wallets submit directly. Vault wallets create an approval request for the co-signer.
+          </p>
+        </div>
+
+        <div className="mt-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+          Review in Freighter
+          <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+        </div>
+      </div>
     </form>
   );
 }

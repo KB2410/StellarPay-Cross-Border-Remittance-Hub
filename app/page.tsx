@@ -1,148 +1,148 @@
 import Link from 'next/link';
+import {
+  ArrowRight,
+  CheckCircle2,
+  Clock3,
+  Landmark,
+  LockKeyhole,
+  ShieldCheck,
+} from 'lucide-react';
 import WalletConnect from '@/components/WalletConnect';
-import Logo from '@/components/Logo';
+
+const operatingStats = [
+  { label: 'Settlement Window', value: '< 5s' },
+  { label: 'Network Fee', value: '$0.001' },
+  { label: 'Vault Policy', value: '2-of-2' },
+];
+
+const transferRows = [
+  {
+    name: 'Operations Vault',
+    route: 'Mumbai to Nairobi',
+    amount: '240.00 USDC',
+    status: 'Ready',
+  },
+  {
+    name: 'Family Remittance',
+    route: 'New York to Manila',
+    amount: '75.00 XLM',
+    status: 'Settled',
+  },
+  {
+    name: 'Supplier Payout',
+    route: 'London to Delhi',
+    amount: '500.00 USDC',
+    status: 'Awaiting co-signer',
+  },
+];
 
 export default function LandingPage() {
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
-      {/* Dynamic Background Elements */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent/20 rounded-full blur-[128px] mix-blend-screen animate-float pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-accent-cyan/10 rounded-full blur-[128px] mix-blend-screen animate-float pointer-events-none" style={{ animationDelay: '2s' }} />
+    <div className="page-shell">
+      <section className="grid min-h-[calc(100vh-8rem)] items-center gap-10 py-10 lg:grid-cols-[0.92fr_1.08fr] lg:py-14">
+        <div>
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700">
+            <Landmark className="h-4 w-4" aria-hidden="true" />
+            Stellar testnet remittance console
+          </div>
 
-      {/* Hero Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-32">
-        <div className="text-center max-w-4xl mx-auto">
-          {/* Logo mark above headline */}
-          <div className="flex justify-center mb-10 animate-float">
-            <div className="relative">
-              <div className="absolute inset-0 bg-accent blur-xl opacity-50 rounded-full" />
-              <Logo size={80} />
+          <p className="section-label">StellarPay</p>
+          <h1 className="mt-3 max-w-2xl text-4xl font-bold leading-[1.06] tracking-tight text-slate-950 font-display sm:text-5xl lg:text-6xl">
+            Cross-border transfers with vault-grade controls.
+          </h1>
+
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+            Send XLM and USDC on Stellar, manage shared custody approvals, and monitor platform activity from one focused product workspace.
+          </p>
+
+          <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
+            <WalletConnect />
+            <Link
+              href="/admin"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-slate-400 hover:bg-slate-50 hover:text-slate-950"
+            >
+              View admin portal
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+
+          <div className="mt-10 grid max-w-xl grid-cols-3 gap-3">
+            {operatingStats.map((stat) => (
+              <div key={stat.label} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                <p className="text-xl font-bold text-slate-950 font-display">{stat.value}</p>
+                <p className="mt-1 text-xs font-medium text-slate-500">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+            <div>
+              <p className="section-label">Live Workspace</p>
+              <h2 className="mt-1 text-lg font-bold text-slate-950">Transfer Operations</h2>
+            </div>
+            <div className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+              Horizon connected
             </div>
           </div>
 
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
-            <span className="text-sm text-gray-300 font-medium tracking-wide">
-              Live on Stellar Testnet
-            </span>
-          </div>
-
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-white font-display">
-            Institutional-Grade <br />
-            <span className="text-gradient">Cross-Border Payments</span>
-          </h1>
-
-          <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
-            Settle USDC remittances globally on the Stellar network in seconds. 
-            Secure your assets with multi-signature vaults. No intermediaries, no delays.
-          </p>
-
-          {/* Wallet Connect */}
-          <div className="flex justify-center">
-            <WalletConnect />
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-24">
+          <div className="grid gap-4 p-5 sm:grid-cols-3">
             {[
-              { value: '< 5s', label: 'Global Settlement' },
-              { value: '$0.001', label: 'Average Network Fee' },
-              { value: '2-of-2', label: 'Multi-Sig Custody' },
-            ].map((stat) => (
-              <div key={stat.label} className="glass rounded-2xl p-6 text-center transform transition-all duration-300 hover:scale-105 hover:bg-white/10 hover:border-accent/50">
-                <p className="text-3xl font-bold text-white font-display mb-1">
-                  {stat.value}
-                </p>
-                <p className="text-xs text-accent-cyan font-medium uppercase tracking-widest">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section className="relative z-10 border-y border-white/5 bg-black/20 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white font-display">Platform Features</h2>
-            <p className="text-gray-400 mt-4 text-lg">Built for scale, security, and speed.</p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                ),
-                title: 'Instant Settlements',
-                desc: 'Transfer USDC and XLM globally. Funds arrive in under 5 seconds with deterministic finality.',
-              },
-              {
-                icon: (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                ),
-                title: 'Multi-Signature Vaults',
-                desc: 'Configure accounts with M-of-N threshold signatures. Co-signers approve transactions before execution.',
-              },
-              {
-                icon: (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                ),
-                title: 'Live Auditing & Metrics',
-                desc: 'Monitor platform health, track transaction volumes, and audit user activity in real-time.',
-              },
-            ].map((feature) => (
-              <div
-                key={feature.title}
-                className="structured-card p-8 group relative overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-accent/10 rounded-full blur-xl group-hover:bg-accent/20 transition-colors duration-500" />
-                <div className="relative z-10 w-12 h-12 rounded-xl bg-gradient-to-br from-accent/20 to-accent-cyan/20 border border-accent/30 text-accent-cyan flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(6,182,212,0.15)] group-hover:scale-110 transition-transform duration-300">
-                  {feature.icon}
+              { label: 'Available XLM', value: '8,420.50', icon: Clock3 },
+              { label: 'USDC Balance', value: '$3,180.00', icon: Landmark },
+              { label: 'Pending Reviews', value: '3', icon: ShieldCheck },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.label} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <Icon className="mb-4 h-5 w-5 text-accent" aria-hidden="true" />
+                  <p className="text-2xl font-bold text-slate-950 font-display">{item.value}</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                    {item.label}
+                  </p>
                 </div>
-                <h3 className="relative z-10 text-xl font-semibold text-white mb-3 font-display">
-                  {feature.title}
-                </h3>
-                <p className="relative z-10 text-gray-400 text-sm leading-relaxed group-hover:text-gray-300 transition-colors">
-                  {feature.desc}
-                </p>
+              );
+            })}
+          </div>
+
+          <div className="px-5 pb-5">
+            <div className="overflow-hidden rounded-lg border border-slate-200">
+              <div className="grid grid-cols-[1.2fr_1fr_0.8fr_0.9fr] bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                <span>Flow</span>
+                <span>Route</span>
+                <span>Amount</span>
+                <span>Status</span>
               </div>
-            ))}
+              {transferRows.map((row) => (
+                <div
+                  key={row.name}
+                  className="grid grid-cols-[1.2fr_1fr_0.8fr_0.9fr] items-center border-t border-slate-200 px-4 py-4 text-sm"
+                >
+                  <span className="font-semibold text-slate-950">{row.name}</span>
+                  <span className="text-slate-500">{row.route}</span>
+                  <span className="font-mono text-slate-700">{row.amount}</span>
+                  <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
+                    {row.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:grid-cols-2">
+            <div className="flex items-center gap-3 text-sm text-slate-600">
+              <LockKeyhole className="h-5 w-5 text-slate-500" aria-hidden="true" />
+              HTTP-only sessions and signed wallet challenges
+            </div>
+            <div className="flex items-center gap-3 text-sm text-slate-600">
+              <ShieldCheck className="h-5 w-5 text-slate-500" aria-hidden="true" />
+              Co-signer approvals before vault execution
+            </div>
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="relative z-10 py-12 border-t border-white/5 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Logo size={24} />
-            <p className="text-sm text-gray-500 font-medium">
-              © 2026 StellarPay.
-            </p>
-          </div>
-          <div className="flex items-center gap-6">
-            <Link href="/admin" className="text-sm font-medium text-gray-500 hover:text-white transition-colors">
-              Admin Portal
-            </Link>
-            <a
-              href="https://stellar.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium text-gray-500 hover:text-white transition-colors"
-            >
-              Stellar Network
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

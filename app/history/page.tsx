@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowLeft, Download, ExternalLink, FileText, RefreshCw, X } from 'lucide-react';
 import { getTransactionHistory } from '@/lib/stellar';
 import type { HorizonOperation } from '@/types';
 import TransactionCard from '@/components/TransactionCard';
@@ -36,16 +37,15 @@ export default function HistoryPage() {
     fetchHistory();
   }, [router]);
 
-  // Handle CSV Export
   const downloadCSV = () => {
     if (!transactions.length) return;
 
     const headers = ['Date', 'Type', 'Asset', 'Amount', 'Counterparty', 'Transaction Hash'];
-    
-    const rows = transactions.map(tx => {
+
+    const rows = transactions.map((tx) => {
       const date = new Date(tx.created_at).toISOString();
       const type = tx.type;
-      
+
       let asset = 'XLM';
       let amount = '0';
       let counterparty = '';
@@ -76,52 +76,48 @@ export default function HistoryPage() {
   if (!publicKey) return null;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-zinc-500 mb-8 font-medium">
-        <Link href="/dashboard" className="hover:text-zinc-300 transition-colors">
-          Dashboard
-        </Link>
-        <span>→</span>
-        <span className="text-zinc-50">Transaction History</span>
-      </div>
+    <div className="page-shell">
+      <Link
+        href="/dashboard"
+        className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-slate-950"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        Dashboard
+      </Link>
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-50 mb-1">
-            Transaction History
+          <p className="section-label">Ledger Archive</p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 font-display">
+            Transaction history
           </h1>
-          <p className="text-zinc-500 text-sm">
-            Complete record of your network activity
+          <p className="mt-2 text-sm text-slate-600">
+            Review recent Horizon operations and export records for reconciliation.
           </p>
         </div>
-        
-        {/* Actions */}
+
         <div className="flex items-center gap-3">
           <button
             onClick={() => window.location.reload()}
-            className="p-2.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-zinc-300 transition-colors"
+            className="btn-secondary inline-flex h-11 items-center gap-2 rounded-lg px-4 text-sm font-semibold"
             title="Refresh History"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
+            <RefreshCw className="h-4 w-4" aria-hidden="true" />
+            Refresh
           </button>
           <button
             onClick={downloadCSV}
             disabled={loading || transactions.length === 0}
-            className="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-sm text-zinc-300 transition-colors disabled:opacity-50 font-medium"
+            className="btn-primary inline-flex h-11 items-center gap-2 rounded-lg px-4 text-sm disabled:opacity-50"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
+            <Download className="h-4 w-4" aria-hidden="true" />
             Export CSV
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-6 font-medium">
+        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
           {error}
         </div>
       )}
@@ -129,112 +125,113 @@ export default function HistoryPage() {
       {loading ? (
         <div className="space-y-3">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-24 bg-zinc-800 rounded-xl shimmer" />
+            <div key={i} className="h-20 rounded-lg bg-slate-200 shimmer" />
           ))}
         </div>
       ) : transactions.length > 0 ? (
         <div className="space-y-3">
           {transactions.map((tx) => (
-            <div key={tx.id} onClick={() => setSelectedTx(tx)} className="cursor-pointer">
-               <TransactionCard operation={tx} userPublicKey={publicKey} />
-            </div>
+            <button
+              key={tx.id}
+              onClick={() => setSelectedTx(tx)}
+              className="block w-full text-left"
+            >
+              <TransactionCard operation={tx} userPublicKey={publicKey} />
+            </button>
           ))}
         </div>
       ) : (
-        <div className="structured-card rounded-xl p-12 text-center">
-          <svg className="w-12 h-12 text-zinc-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <p className="text-zinc-400 font-medium text-lg">No history found</p>
-          <p className="text-zinc-500 text-sm mt-1">
-            Your transactions will appear here once you start sending or receiving on the network.
+        <div className="structured-card p-12 text-center">
+          <FileText className="mx-auto mb-4 h-12 w-12 text-slate-400" aria-hidden="true" />
+          <p className="text-lg font-semibold text-slate-950">No history found</p>
+          <p className="mt-2 text-sm text-slate-500">
+            Transactions will appear here once you send or receive on the network.
           </p>
         </div>
       )}
 
-      {/* Transaction Details Modal */}
       {selectedTx && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm transition-opacity"
+          <div
+            className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm"
             onClick={() => setSelectedTx(null)}
           />
-          <div className="structured-card rounded-2xl w-full max-w-lg relative z-10 shadow-2xl modal-content transform transition-all">
-            <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
-              <h3 className="text-lg font-bold text-zinc-50">Transaction Details</h3>
-              <button 
+          <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+              <div>
+                <p className="section-label">Operation Detail</p>
+                <h3 className="mt-1 text-lg font-bold text-slate-950">Transaction details</h3>
+              </div>
+              <button
                 onClick={() => setSelectedTx(null)}
-                className="text-zinc-400 hover:text-zinc-50 transition-colors p-1"
+                className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-950"
+                aria-label="Close transaction details"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
-            
-            <div className="p-6 space-y-4">
+
+            <div className="space-y-5 p-6">
               <div>
-                <p className="text-sm text-zinc-500 font-medium mb-1">Transaction ID</p>
-                <a 
+                <p className="text-sm font-semibold text-slate-500">Transaction hash</p>
+                <a
                   href={`https://stellar.expert/explorer/testnet/tx/${selectedTx.transaction_hash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-400 font-mono text-sm break-all transition-colors"
+                  className="mt-1 block break-all font-mono text-sm font-semibold text-accent hover:text-accent-dark"
                 >
                   {selectedTx.transaction_hash}
                 </a>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-zinc-500 font-medium mb-1">Date</p>
-                  <p className="text-zinc-50 text-sm font-medium">
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Date</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-950">
                     {new Date(selectedTx.created_at).toLocaleString()}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-zinc-500 font-medium mb-1">Type</p>
-                  <p className="text-zinc-50 text-sm font-medium capitalize">
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Type</p>
+                  <p className="mt-2 text-sm font-semibold capitalize text-slate-950">
                     {selectedTx.type.replace('_', ' ')}
                   </p>
                 </div>
               </div>
 
               {selectedTx.type === 'payment' && (
-                <>
-                  <div className="grid grid-cols-2 gap-4 border-t border-zinc-800 pt-4">
-                     <div>
-                      <p className="text-sm text-zinc-500 font-medium mb-1">Amount</p>
-                      <p className="text-zinc-50 font-bold">
-                        {selectedTx.amount} {selectedTx.asset_type === 'native' ? 'XLM' : selectedTx.asset_code}
-                      </p>
-                    </div>
+                <div className="space-y-4 border-t border-slate-200 pt-5">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500">Amount</p>
+                    <p className="mt-1 text-lg font-bold text-slate-950">
+                      {selectedTx.amount} {selectedTx.asset_type === 'native' ? 'XLM' : selectedTx.asset_code}
+                    </p>
                   </div>
-                  <div className="border-t border-zinc-800 pt-4">
-                    <p className="text-sm text-zinc-500 font-medium mb-1">From</p>
-                    <p className="text-zinc-400 font-mono text-xs break-all bg-zinc-900/50 p-2 rounded-lg border border-zinc-800 mb-3">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500">From</p>
+                    <p className="mt-1 break-all rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-700">
                       {selectedTx.from}
                     </p>
-                    <p className="text-sm text-zinc-500 font-medium mb-1">To</p>
-                    <p className="text-zinc-400 font-mono text-xs break-all bg-zinc-900/50 p-2 rounded-lg border border-zinc-800">
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500">To</p>
+                    <p className="mt-1 break-all rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-700">
                       {selectedTx.to}
                     </p>
                   </div>
-                </>
+                </div>
               )}
             </div>
-            
-            <div className="p-6 border-t border-zinc-800 bg-zinc-900/30 rounded-b-2xl">
-              <a 
+
+            <div className="border-t border-slate-200 bg-slate-50 p-5">
+              <a
                 href={`https://stellar.expert/explorer/testnet/tx/${selectedTx.transaction_hash}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-50 rounded-lg text-sm font-medium transition-colors"
+                className="btn-secondary inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold"
               >
                 View on Stellar Expert
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
+                <ExternalLink className="h-4 w-4" aria-hidden="true" />
               </a>
             </div>
           </div>

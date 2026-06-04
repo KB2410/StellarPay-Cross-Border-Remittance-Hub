@@ -4,13 +4,14 @@ import { useEffect, useState, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
+import { Activity, BarChart3, LockKeyhole, LogOut, ShieldCheck, Users } from 'lucide-react';
 import type { Metrics } from '@/types';
 import { isAdmin, authenticateAdmin, logoutAdmin } from '@/lib/admin';
 
 const MetricsChart = dynamic(() => import('@/components/MetricsChart'), {
   ssr: false,
   loading: () => (
-    <div className="h-80 bg-zinc-800 rounded-2xl shimmer" />
+    <div className="h-80 rounded-lg bg-slate-200 shimmer" />
   ),
 });
 
@@ -57,7 +58,6 @@ export default function AdminPage() {
 
       setLastUpdated(new Date().toLocaleTimeString());
     } catch {
-      // Fallback: show zeros so the dashboard still renders
       setMetrics({ totalUsers: 0, dau: 0, totalTransactions: 0, totalVolume: 0 });
       setHealth({ status: 'degraded', checks: {} });
     } finally {
@@ -66,7 +66,6 @@ export default function AdminPage() {
   }, [isAuthorized]);
 
   useEffect(() => {
-    // Check if user is already authorized
     async function checkAuth() {
       const admin = await isAdmin();
       setIsAuthorized(admin);
@@ -78,7 +77,7 @@ export default function AdminPage() {
   useEffect(() => {
     if (isAuthorized) {
       fetchData();
-      const interval = setInterval(fetchData, 30000); // Auto-refresh every 30s
+      const interval = setInterval(fetchData, 30000);
       return () => clearInterval(interval);
     }
   }, [fetchData, isAuthorized]);
@@ -112,102 +111,57 @@ export default function AdminPage() {
 
   const statCards = metrics
     ? [
-        {
-          label: 'Total Users',
-          value: metrics.totalUsers,
-          icon: (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-            </svg>
-          ),
-        },
-        {
-          label: 'Daily Active',
-          value: metrics.dau,
-          icon: (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
-          ),
-        },
-        {
-          label: 'Transactions',
-          value: metrics.totalTransactions,
-          icon: (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-            </svg>
-          ),
-        },
-        {
-          label: 'Total Volume',
-          value: `$${(metrics.totalVolume || 0).toFixed(2)}`,
-          icon: (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          ),
-        },
+        { label: 'Total Users', value: metrics.totalUsers, icon: Users },
+        { label: 'Daily Active', value: metrics.dau, icon: Activity },
+        { label: 'Transactions', value: metrics.totalTransactions, icon: BarChart3 },
+        { label: 'Total Volume', value: `$${(metrics.totalVolume || 0).toFixed(2)}`, icon: ShieldCheck },
       ]
     : [];
 
   if (!isAuthorized) {
     return (
-      <div className="max-w-md mx-auto px-4 py-16">
-        <div className="structured-card rounded-2xl p-8 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-zinc-800 text-zinc-400 flex items-center justify-center mx-auto mb-6 border border-zinc-700">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
+      <div className="page-shell flex min-h-[calc(100vh-7rem)] items-center justify-center">
+        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-accent">
+            <LockKeyhole className="h-6 w-6" aria-hidden="true" />
           </div>
-          <h1 className="text-xl font-bold text-zinc-50 mb-2">Admin Access Required</h1>
-          <p className="text-zinc-500 text-sm mb-6">
-            This portal is public, but dashboard access requires the admin password.
+          <p className="section-label">Admin Portal</p>
+          <h1 className="mt-2 text-2xl font-bold text-slate-950 font-display">Access required</h1>
+          <p className="mt-3 text-sm leading-6 text-slate-500">
+            Metrics and health data are protected by the admin portal password.
           </p>
+
           {authError && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm mb-4 font-medium">
+            <div className="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
               {authError}
             </div>
           )}
-          <form onSubmit={handleAuth} className="space-y-4">
+
+          <form onSubmit={handleAuth} className="mt-6 space-y-4">
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter admin password"
               autoComplete="current-password"
-              className="input-field w-full px-4 py-3 rounded-lg placeholder:text-zinc-600 transition-all text-sm font-medium"
+              className="input-field h-12 w-full rounded-lg px-4 text-sm font-medium"
               required
             />
             <button
               type="submit"
               disabled={isSubmitting || !password}
-              className="btn-primary w-full py-3 px-4 font-semibold rounded-lg flex items-center justify-center gap-2 text-sm"
+              className="btn-primary flex h-12 w-full items-center justify-center gap-2 rounded-lg px-4 text-sm"
             >
-              {isSubmitting ? (
-                <>
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Unlocking...
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                  Unlock Portal
-                </>
-              )}
+              {isSubmitting ? 'Unlocking portal' : 'Unlock Portal'}
             </button>
           </form>
-          <div className="mt-6 pt-6 border-t border-zinc-800">
+
+          <div className="mt-6 border-t border-slate-200 pt-6">
             <Link
               href="/dashboard"
-              className="text-sm text-zinc-500 hover:text-zinc-400 transition-colors font-medium"
+              className="text-sm font-semibold text-slate-500 transition-colors hover:text-slate-950"
             >
-              ← Back to Dashboard
+              Back to dashboard
             </Link>
           </div>
         </div>
@@ -216,72 +170,71 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+    <div className="page-shell">
+      <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-50 mb-1">
-            Admin Dashboard
+          <p className="section-label">Platform Operations</p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 font-display">
+            Admin dashboard
           </h1>
-          <p className="text-zinc-500 text-sm">
-            Platform metrics &amp; system health
+          <p className="mt-2 text-sm text-slate-600">
+            Monitor adoption, transfer volume, and service connectivity.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {lastUpdated && (
-            <span className="text-xs text-zinc-500 font-medium">
-              Updated: {lastUpdated}
+            <span className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 shadow-sm">
+              Updated {lastUpdated}
             </span>
           )}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900/50 rounded-lg border border-zinc-800">
+          <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm">
             <span
-              className={`w-2 h-2 rounded-full ${
-                health?.status === 'healthy'
-                  ? 'bg-emerald-500 animate-pulse'
-                  : 'bg-amber-500'
+              className={`h-2 w-2 rounded-full ${
+                health?.status === 'healthy' ? 'bg-emerald-500' : 'bg-amber-500'
               }`}
             />
-            <span className="text-xs text-zinc-400 font-medium">
-              {health?.status === 'healthy' ? 'Systems Normal' : 'Degraded'}
-            </span>
+            {health?.status === 'healthy' ? 'Systems normal' : 'Degraded'}
           </div>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 text-sm text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800 border border-transparent hover:border-zinc-700 rounded-lg transition-all font-medium"
+            className="btn-secondary inline-flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-semibold"
           >
+            <LogOut className="h-4 w-4" aria-hidden="true" />
             Logout
           </button>
         </div>
       </div>
 
-      {/* Health Checks */}
       {health && (
-        <div className="structured-card rounded-xl p-5 mb-8">
-          <h2 className="text-sm font-semibold text-zinc-500 mb-4 uppercase tracking-wider">
-            System Health
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+        <section className="structured-card mb-6 p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <p className="section-label">System Health</p>
+              <h2 className="mt-1 text-lg font-bold text-slate-950">Service checks</h2>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
             {Object.entries(health.checks).map(([service, statusVal]) => (
-              <div key={service} className="flex items-center justify-between bg-zinc-900/50 p-3 rounded-lg border border-zinc-800">
-                <span className="text-sm font-medium text-zinc-300 capitalize flex items-center gap-2">
+              <div key={service} className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <span className="flex items-center gap-2 text-sm font-semibold capitalize text-slate-700">
                   <span
-                    className={`w-2 h-2 rounded-full ${
+                    className={`h-2 w-2 rounded-full ${
                       statusVal === 'connected'
                         ? 'bg-emerald-500'
                         : statusVal === 'not_configured'
-                        ? 'bg-zinc-500'
+                        ? 'bg-slate-400'
                         : 'bg-red-500'
                     }`}
                   />
                   {service}
                 </span>
                 <span
-                  className={`text-xs font-semibold uppercase ${
+                  className={`text-xs font-bold uppercase tracking-[0.12em] ${
                     statusVal === 'connected'
-                      ? 'text-emerald-500'
+                      ? 'text-emerald-700'
                       : statusVal === 'not_configured'
-                      ? 'text-zinc-500'
-                      : 'text-red-500'
+                      ? 'text-slate-500'
+                      : 'text-red-700'
                   }`}
                 >
                   {statusVal}
@@ -289,65 +242,53 @@ export default function AdminPage() {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {loading ? (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-28 bg-zinc-800 rounded-xl shimmer" />
+              <div key={i} className="h-28 rounded-lg bg-slate-200 shimmer" />
             ))}
           </div>
-          <div className="h-80 bg-zinc-800 rounded-xl shimmer" />
+          <div className="h-80 rounded-lg bg-slate-200 shimmer" />
         </div>
       ) : (
         <>
-          {/* Stat Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {statCards.map((stat) => (
-              <div
-                key={stat.label}
-                className="structured-card rounded-xl p-5 flex flex-col justify-center"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">{stat.label}</p>
-                  <div className="text-blue-500 opacity-80">
-                    {stat.icon}
+          <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {statCards.map((stat) => {
+              const Icon = stat.icon;
+              return (
+                <div key={stat.label} className="metric-card">
+                  <div className="mb-4 flex items-center justify-between">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{stat.label}</p>
+                    <Icon className="h-5 w-5 text-accent" aria-hidden="true" />
                   </div>
+                  <p className="text-3xl font-bold text-slate-950 font-display">{stat.value}</p>
                 </div>
-                <p className="text-3xl font-bold text-zinc-50">{stat.value}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* Chart */}
-          <div className="structured-card rounded-xl p-6">
-            <h2 className="text-lg font-bold text-zinc-50 mb-6">
-              Platform Overview
-            </h2>
+          <section className="structured-card p-6">
+            <div className="mb-6">
+              <p className="section-label">Metrics</p>
+              <h2 className="mt-1 text-lg font-bold text-slate-950">Platform overview</h2>
+            </div>
             {metrics && <MetricsChart metrics={metrics} />}
-          </div>
+          </section>
         </>
       )}
 
-      {/* Auto-refresh indicator */}
-      <div className="mt-8 text-center border-t border-zinc-800 pt-6">
-        <p className="text-xs font-medium text-zinc-500">
-          Auto-refreshing every 30 seconds •{' '}
-          <Link
-            href="/api/health"
-            target="_blank"
-            className="text-blue-500 hover:text-blue-400 transition-colors"
-          >
+      <div className="mt-8 border-t border-slate-200 pt-6 text-center">
+        <p className="text-xs font-medium text-slate-500">
+          Auto-refreshes every 30 seconds |{' '}
+          <Link href="/api/health" target="_blank" className="font-semibold text-accent hover:text-accent-dark">
             Health API
           </Link>{' '}
-          •{' '}
-          <Link
-            href="/api/metrics"
-            target="_blank"
-            className="text-blue-500 hover:text-blue-400 transition-colors"
-          >
+          |{' '}
+          <Link href="/api/metrics" target="_blank" className="font-semibold text-accent hover:text-accent-dark">
             Metrics API
           </Link>
         </p>

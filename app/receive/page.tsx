@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowLeft, Landmark, QrCode, ShieldCheck } from 'lucide-react';
 import QRDisplay from '@/components/QRDisplay';
 
 export default function ReceivePage() {
@@ -21,34 +22,54 @@ export default function ReceivePage() {
   if (!publicKey) return null;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-8">
-        <Link href="/dashboard" className="hover:text-gray-300 transition-colors">
-          Dashboard
-        </Link>
-        <span>→</span>
-        <span className="text-white">Receive</span>
-      </div>
+    <div className="page-shell">
+      <Link
+        href="/dashboard"
+        className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-slate-950"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        Dashboard
+      </Link>
 
-      {/* Header */}
-      <div className="text-center mb-10">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-600 to-blue-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-cyan-500/20">
-          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-          Receive Payment
-        </h1>
-        <p className="text-gray-400">
-          Share your address or QR code to receive USDC
-        </p>
-      </div>
+      <div className="grid gap-6 lg:grid-cols-[1fr_0.34fr]">
+        <section className="structured-card overflow-hidden">
+          <div className="border-b border-slate-200 px-6 py-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-accent">
+                <QrCode className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div>
+                <p className="section-label">Receive Desk</p>
+                <h1 className="mt-1 text-2xl font-bold text-slate-950 font-display">
+                  Receive payment
+                </h1>
+              </div>
+            </div>
+            <p className="mt-4 max-w-2xl text-sm text-slate-600">
+              Share your Stellar address or QR code with a sender. XLM can arrive directly; issued assets require the matching trustline.
+            </p>
+          </div>
+          <div className="p-6">
+            <QRDisplay publicKey={publicKey} />
+          </div>
+        </section>
 
-      {/* QR Card */}
-      <div className="glass-card rounded-2xl p-6 sm:p-8 max-w-md mx-auto">
-        <QRDisplay publicKey={publicKey} />
+        <aside className="space-y-4">
+          <div className="structured-card p-5">
+            <Landmark className="mb-4 h-5 w-5 text-accent" aria-hidden="true" />
+            <p className="text-sm font-semibold text-slate-950">Stellar network</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              The address is your public key on Stellar testnet. Keep it shareable; keep secret keys inside Freighter.
+            </p>
+          </div>
+          <div className="structured-card p-5">
+            <ShieldCheck className="mb-4 h-5 w-5 text-accent" aria-hidden="true" />
+            <p className="text-sm font-semibold text-slate-950">Trustline note</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Use the Assets page to add USDC support before receiving USDC payments.
+            </p>
+          </div>
+        </aside>
       </div>
     </div>
   );

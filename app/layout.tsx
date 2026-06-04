@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
 export const metadata: Metadata = {
-  title: 'StellarPay — Cross-Border Remittance Hub',
+  title: 'StellarPay - Cross-Border Remittance Hub',
   description:
     'Send money across borders instantly with Stellar blockchain. Multi-signature vaults, USDC payments, and institutional-grade security.',
   keywords: ['stellar', 'remittance', 'USDC', 'blockchain', 'multi-sig', 'payments'],

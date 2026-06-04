@@ -8,15 +8,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: '#030712', // gray-950 deep
-        foreground: '#f9fafb', // gray-50
-        surface: 'rgba(17, 24, 39, 0.7)', // gray-900 with opacity for glass
-        'surface-hover': 'rgba(31, 41, 55, 0.8)', // gray-800
-        border: 'rgba(55, 65, 81, 0.5)', // gray-700
-        'border-active': 'rgba(99, 102, 241, 0.5)', // indigo
-        accent: '#6366f1', // indigo-500
-        'accent-dark': '#4f46e5', // indigo-600
-        'accent-cyan': '#06b6d4', // cyan-500
+        background: '#f5f7fb',
+        foreground: '#172033',
+        surface: '#ffffff',
+        'surface-hover': '#f8fafc',
+        border: '#d8dee9',
+        'border-active': '#1d7f7a',
+        accent: '#1d7f7a',
+        'accent-dark': '#125f5a',
+        'accent-cyan': '#2563eb',
         success: '#10b981',
         danger: '#ef4444',
         warning: '#f59e0b',

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Check, Copy } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
 interface QRDisplayProps {
@@ -17,54 +18,41 @@ export default function QRDisplay({ publicKey }: QRDisplayProps) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      {/* QR Code */}
-      <div className="bg-white p-4 rounded-2xl shadow-lg shadow-violet-500/10">
+    <div className="grid gap-6 lg:grid-cols-[260px_1fr] lg:items-center">
+      <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
         <QRCodeSVG
           value={publicKey}
-          size={200}
+          size={220}
           bgColor="#ffffff"
-          fgColor="#0f0f1e"
+          fgColor="#172033"
           level="H"
           includeMargin={false}
+          className="h-auto w-full"
         />
       </div>
 
-      {/* Public Key Display */}
-      <div className="w-full max-w-md">
-        <label className="block text-sm font-medium text-gray-400 mb-2 text-center">
-          Your Stellar Address
-        </label>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4 break-all font-mono text-sm text-gray-300 text-center">
+      <div>
+        <p className="section-label">Wallet Address</p>
+        <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono text-sm font-semibold text-slate-950 break-all">
           {publicKey}
         </div>
-      </div>
 
-      {/* Copy Button */}
-      <button
-        onClick={copyAddress}
-        className={`px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 flex items-center gap-2 ${
-          copied
-            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-            : 'bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 border border-violet-500/30'
-        }`}
-      >
-        {copied ? (
-          <>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            Copied!
-          </>
-        ) : (
-          <>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-            Copy Address
-          </>
-        )}
-      </button>
+        <button
+          onClick={copyAddress}
+          className={`mt-4 inline-flex h-11 items-center gap-2 rounded-lg px-4 text-sm font-semibold transition-colors ${
+            copied
+              ? 'border border-emerald-200 bg-emerald-50 text-emerald-700'
+              : 'btn-secondary'
+          }`}
+        >
+          {copied ? (
+            <Check className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            <Copy className="h-4 w-4" aria-hidden="true" />
+          )}
+          {copied ? 'Copied' : 'Copy Address'}
+        </button>
+      </div>
     </div>
   );
 }
